@@ -6,13 +6,51 @@ export const SITE = {
   tagline: "Swing Better. Play More. Experience Golf Differently.",
   descriptor: "Premium Indoor Golf",
   town: "Burton upon Trent",
-  /* TODO — supply real details before launch. */
-  address: null as string | null,
+
+  address: {
+    line1: "Oakwood House",
+    line2: "Bretby Business Park",
+    line3: "Ashby Road East",
+    town: "Burton upon Trent",
+    postcode: "DE15 0PS",
+    country: "GB",
+  },
+
+  /* NOTE: these two arrived on different domains — dpxgolf.co.uk and
+   * dpx.co.uk. Entered exactly as supplied; worth confirming the second
+   * isn't a typo before launch. */
+  emails: ["markpaxton@dpxgolf.co.uk", "heatherfisher@dpx.co.uk"],
+
+  /* TODO — still outstanding. */
   phone: null as string | null,
-  email: null as string | null,
   hours: null as string | null,
+
+  /* The venue is going with TrackMan's own booking system; the link
+   * lands once the contract is signed. Drop the URL in here and every
+   * "Book a Bay" control on the site switches from scrolling to the
+   * enquiry form to linking straight out at it — no other edits needed. */
   bookingUrl: null as string | null,
 };
+
+/**
+ * Props for every "Book a Bay" control. While `bookingUrl` is null these
+ * scroll to the enquiry form; the moment it's set they open TrackMan's
+ * booking system in a new tab instead. Spread this rather than
+ * hard-coding an href, so the switch is one line in one file.
+ */
+export const bookingLinkProps = () =>
+  SITE.bookingUrl
+    ? { href: SITE.bookingUrl, target: "_blank", rel: "noopener noreferrer" }
+    : { href: "#book" };
+
+/** Formatted one-line address, for inline use. */
+export const addressOneLine = [
+  SITE.address.line1,
+  SITE.address.line2,
+  SITE.address.line3,
+  SITE.address.town,
+  SITE.address.postcode,
+].join(", ");
 
 export const NAV = [
   { label: "The Venue", href: "#venue" },

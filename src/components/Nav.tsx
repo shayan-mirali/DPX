@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { NAV, SITE } from "@/lib/content";
+import { NAV, SITE, bookingLinkProps } from "@/lib/content";
 import { Magnetic } from "@/components/ui/Magnetic";
 
 export function Nav() {
@@ -74,7 +74,7 @@ export function Nav() {
             <div className="hidden sm:block">
             <Magnetic>
               <a
-                href="#book"
+                {...bookingLinkProps()}
                 data-reticle="Book"
                 className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-lime px-5 py-2.5 text-[0.85rem] font-semibold text-ink transition-colors duration-300"
               >
@@ -139,7 +139,7 @@ export function Nav() {
           </ul>
 
           <a
-            href="#book"
+            {...bookingLinkProps()}
             onClick={() => setOpen(false)}
             className="flex items-center justify-between rounded-full bg-lime px-7 py-4 text-base font-semibold text-ink"
           >

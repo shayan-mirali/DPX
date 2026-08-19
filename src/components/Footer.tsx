@@ -51,26 +51,29 @@ export function Footer() {
             <h4 className="data text-[10px] uppercase tracking-[0.2em] text-bone-dim">
               Visit
             </h4>
-            <ul className="mt-5 flex flex-col gap-3 text-[0.95rem] text-bone/60">
-              <li>{SITE.address ?? `${SITE.town}, Staffordshire`}</li>
+            <address className="mt-5 flex flex-col gap-3 text-[0.95rem] not-italic text-bone/60">
+              <span className="leading-relaxed">
+                {SITE.address.line1}
+                <br />
+                {SITE.address.line2}
+                <br />
+                {SITE.address.line3}
+                <br />
+                {SITE.address.town} <span className="data">{SITE.address.postcode}</span>
+              </span>
+
+              {SITE.emails.map((e) => (
+                <a key={e} href={`mailto:${e}`} className="break-all transition-colors hover:text-lime">
+                  {e}
+                </a>
+              ))}
+
               {SITE.phone && (
-                <li>
-                  <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:text-lime">
-                    {SITE.phone}
-                  </a>
-                </li>
+                <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:text-lime">
+                  {SITE.phone}
+                </a>
               )}
-              {SITE.email && (
-                <li>
-                  <a href={`mailto:${SITE.email}`} className="hover:text-lime">
-                    {SITE.email}
-                  </a>
-                </li>
-              )}
-              {!SITE.phone && !SITE.email && (
-                <li className="text-bone/35">Contact details coming shortly</li>
-              )}
-            </ul>
+            </address>
           </div>
         </div>
 

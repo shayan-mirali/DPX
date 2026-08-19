@@ -70,8 +70,10 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-/* Local business structured data. Fields we don't have yet are simply
- * omitted rather than filled with plausible-looking inventions. */
+/* Local business structured data — this is what puts the venue on the
+ * map panel in Google results, so the postal address matters. Fields we
+ * don't have yet (phone, opening hours) are omitted rather than filled
+ * with plausible-looking inventions. */
 const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "SportsActivityLocation",
@@ -79,10 +81,13 @@ const JSON_LD = {
   description: `${SITE.descriptor} in ${SITE.town}, powered by TrackMan.`,
   address: {
     "@type": "PostalAddress",
-    addressLocality: SITE.town,
+    streetAddress: [SITE.address.line1, SITE.address.line2, SITE.address.line3].join(", "),
+    addressLocality: SITE.address.town,
     addressRegion: "Staffordshire",
-    addressCountry: "GB",
+    postalCode: SITE.address.postcode,
+    addressCountry: SITE.address.country,
   },
+  email: SITE.emails[0],
   sport: "Golf",
 };
 

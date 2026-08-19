@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { SITE } from "@/lib/content";
+import { SITE, bookingLinkProps } from "@/lib/content";
 import { ShotTracer } from "@/components/ShotTracer";
 import { Magnetic } from "@/components/ui/Magnetic";
 import { usePrefersReducedMotion } from "@/lib/useInView";
@@ -148,7 +148,7 @@ export function Hero() {
           >
             <Magnetic strength={0.24}>
               <a
-                href="#book"
+                {...bookingLinkProps()}
                 data-reticle="Book a bay"
                 className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-lime px-8 py-4 text-base font-semibold text-ink"
               >

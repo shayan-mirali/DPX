@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SITE } from "@/lib/content";
+import { SITE, addressOneLine } from "@/lib/content";
 import { Reveal, RevealLines } from "@/components/ui/Reveal";
+
+const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  addressOneLine
+)}`;
 
 const INTERESTS = [
   { value: "bay", label: "Book a bay" },
@@ -107,19 +111,61 @@ export function Book() {
             </Reveal>
 
             <Reveal delay={300}>
-              <dl className="mt-12 flex flex-col gap-5 border-t border-bone/12 pt-8">
-                {[
-                  ["Where", SITE.address ?? `${SITE.town}, Staffordshire`],
-                  ["Opening hours", SITE.hours ?? "Details coming shortly"],
-                  ["Call", SITE.phone ?? "Details coming shortly"],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex items-baseline justify-between gap-6">
-                    <dt className="data text-[10px] uppercase tracking-[0.2em] text-bone-dim">
-                      {k}
-                    </dt>
-                    <dd className="text-right text-[0.95rem] text-bone/75">{v}</dd>
-                  </div>
-                ))}
+              <dl className="mt-12 flex flex-col gap-6 border-t border-bone/12 pt-8">
+                <div className="flex items-start justify-between gap-6">
+                  <dt className="data shrink-0 text-[10px] uppercase tracking-[0.2em] text-bone-dim">
+                    Where
+                  </dt>
+                  <dd className="text-right text-[0.95rem] leading-relaxed text-bone/75">
+                    <address className="not-italic">
+                      {SITE.address.line1}
+                      <br />
+                      {SITE.address.line2}
+                      <br />
+                      {SITE.address.line3}
+                      <br />
+                      {SITE.address.town}
+                      <br />
+                      <span className="data text-bone/90">{SITE.address.postcode}</span>
+                    </address>
+                    <a
+                      href={MAPS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-reticle="Map"
+                      className="mt-2 inline-flex items-center gap-1.5 text-[0.85rem] text-lime transition-opacity hover:opacity-70"
+                    >
+                      Open in Maps <span aria-hidden>↗</span>
+                    </a>
+                  </dd>
+                </div>
+
+                <div className="flex items-start justify-between gap-6">
+                  <dt className="data shrink-0 text-[10px] uppercase tracking-[0.2em] text-bone-dim">
+                    Email
+                  </dt>
+                  <dd className="flex flex-col items-end gap-1 text-[0.95rem]">
+                    {SITE.emails.map((e) => (
+                      <a
+                        key={e}
+                        href={`mailto:${e}`}
+                        data-reticle="Email"
+                        className="break-all text-right text-bone/75 transition-colors hover:text-lime"
+                      >
+                        {e}
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+
+                <div className="flex items-baseline justify-between gap-6">
+                  <dt className="data shrink-0 text-[10px] uppercase tracking-[0.2em] text-bone-dim">
+                    Opening hours
+                  </dt>
+                  <dd className="text-right text-[0.95rem] text-bone/45">
+                    {SITE.hours ?? "Coming shortly"}
+                  </dd>
+                </div>
               </dl>
             </Reveal>
           </div>
