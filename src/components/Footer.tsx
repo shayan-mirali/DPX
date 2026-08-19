@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { NAV, SITE, telHref } from "@/lib/content";
+import { NAV, SITE, telHref, hoursLabel } from "@/lib/content";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -73,6 +73,8 @@ export function Footer() {
                   {SITE.phone}
                 </a>
               )}
+
+              <span className="text-bone/40">{hoursLabel}</span>
             </address>
           </div>
         </div>

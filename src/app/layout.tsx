@@ -89,6 +89,14 @@ const JSON_LD = {
   },
   email: SITE.emails[0],
   telephone: SITE.phone,
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: SITE.hours.days,
+      opens: SITE.hours.opens,
+      closes: SITE.hours.closes,
+    },
+  ],
   sport: "Golf",
 };
 

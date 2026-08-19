@@ -23,8 +23,14 @@ export const SITE = {
 
   phone: "+44 7368 805031",
 
-  /* TODO — still outstanding. */
-  hours: null as string | null,
+  /* Monday to Friday, 10:00–22:00. Both the visible label and the
+   * structured data derive from this, so adding weekend hours later
+   * means appending to `days` and nothing else. */
+  hours: {
+    opens: "10:00",
+    closes: "22:00",
+    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  },
 
   /* The venue is going with TrackMan's own booking system; the link
    * lands once the contract is signed. Drop the URL in here and every
@@ -43,6 +49,36 @@ export const bookingLinkProps = () =>
   SITE.bookingUrl
     ? { href: SITE.bookingUrl, target: "_blank", rel: "noopener noreferrer" }
     : { href: "#book" };
+
+const WEEK = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;
+
+/**
+ * "Mon – Fri" rather than "Mon, Tue, Wed, Thu, Fri". Collapses any
+ * unbroken run of days into a range, so this still reads properly if
+ * weekend hours get added later.
+ */
+export const daysLabel = (() => {
+  const days = SITE.hours.days;
+  if (days.length === 7) return "Every day";
+
+  const idx = days.map((d) => WEEK.indexOf(d as (typeof WEEK)[number])).sort((a, b) => a - b);
+  const contiguous = idx.every((n, i) => i === 0 || n === idx[i - 1] + 1);
+  const short = (n: number) => WEEK[n].slice(0, 3);
+
+  if (contiguous && idx.length > 1) return `${short(idx[0])} – ${short(idx[idx.length - 1])}`;
+  return idx.map(short).join(", ");
+})();
+
+/** Human-readable hours, e.g. "Mon – Fri · 10:00 – 22:00". */
+export const hoursLabel = `${daysLabel} · ${SITE.hours.opens} – ${SITE.hours.closes}`;
 
 /** `tel:` needs the number stripped of spaces; the display form keeps them. */
 export const telHref = SITE.phone ? `tel:${SITE.phone.replace(/\s+/g, "")}` : null;

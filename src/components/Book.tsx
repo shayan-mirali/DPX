@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SITE, addressOneLine, telHref } from "@/lib/content";
+import { SITE, addressOneLine, telHref, daysLabel } from "@/lib/content";
 import { Reveal, RevealLines } from "@/components/ui/Reveal";
 
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -179,8 +179,13 @@ export function Book() {
                   <dt className="data shrink-0 text-[10px] uppercase tracking-[0.2em] text-bone-dim">
                     Opening hours
                   </dt>
-                  <dd className="text-right text-[0.95rem] text-bone/45">
-                    {SITE.hours ?? "Coming shortly"}
+                  <dd className="text-right text-[0.95rem] text-bone/75">
+                    <span className="data whitespace-nowrap">
+                      {SITE.hours.opens} – {SITE.hours.closes}
+                    </span>
+                    <span className="mt-0.5 block text-[0.8rem] text-bone/40">
+                      {daysLabel}
+                    </span>
                   </dd>
                 </div>
               </dl>
