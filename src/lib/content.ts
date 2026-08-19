@@ -23,13 +23,21 @@ export const SITE = {
 
   phone: "+44 7368 805031",
 
-  /* Monday to Friday, 10:00–22:00. Both the visible label and the
-   * structured data derive from this, so adding weekend hours later
-   * means appending to `days` and nothing else. */
+  /* Seven days a week, 10:00–22:00. Both the visible label and the
+   * structured data derive from this, so changing which days the venue
+   * opens means editing `days` and nothing else. */
   hours: {
     opens: "10:00",
     closes: "22:00",
-    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    days: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
   },
 
   /* The venue is going with TrackMan's own booking system; the link
