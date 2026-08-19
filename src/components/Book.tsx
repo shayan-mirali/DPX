@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SITE, addressOneLine } from "@/lib/content";
+import { SITE, addressOneLine, telHref } from "@/lib/content";
 import { Reveal, RevealLines } from "@/components/ui/Reveal";
 
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -157,6 +157,23 @@ export function Book() {
                     ))}
                   </dd>
                 </div>
+
+                {SITE.phone && telHref && (
+                  <div className="flex items-baseline justify-between gap-6">
+                    <dt className="data shrink-0 text-[10px] uppercase tracking-[0.2em] text-bone-dim">
+                      Call
+                    </dt>
+                    <dd className="text-right text-[0.95rem]">
+                      <a
+                        href={telHref}
+                        data-reticle="Call"
+                        className="data whitespace-nowrap text-bone/75 transition-colors hover:text-lime"
+                      >
+                        {SITE.phone}
+                      </a>
+                    </dd>
+                  </div>
+                )}
 
                 <div className="flex items-baseline justify-between gap-6">
                   <dt className="data shrink-0 text-[10px] uppercase tracking-[0.2em] text-bone-dim">

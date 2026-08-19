@@ -88,6 +88,7 @@ const JSON_LD = {
     addressCountry: SITE.address.country,
   },
   email: SITE.emails[0],
+  telephone: SITE.phone,
   sport: "Golf",
 };
 

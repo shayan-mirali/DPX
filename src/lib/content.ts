@@ -21,8 +21,9 @@ export const SITE = {
    * isn't a typo before launch. */
   emails: ["markpaxton@dpxgolf.co.uk", "heatherfisher@dpx.co.uk"],
 
+  phone: "+44 7368 805031",
+
   /* TODO — still outstanding. */
-  phone: null as string | null,
   hours: null as string | null,
 
   /* The venue is going with TrackMan's own booking system; the link
@@ -42,6 +43,9 @@ export const bookingLinkProps = () =>
   SITE.bookingUrl
     ? { href: SITE.bookingUrl, target: "_blank", rel: "noopener noreferrer" }
     : { href: "#book" };
+
+/** `tel:` needs the number stripped of spaces; the display form keeps them. */
+export const telHref = SITE.phone ? `tel:${SITE.phone.replace(/\s+/g, "")}` : null;
 
 /** Formatted one-line address, for inline use. */
 export const addressOneLine = [

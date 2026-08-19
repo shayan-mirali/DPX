@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { NAV, SITE } from "@/lib/content";
+import { NAV, SITE, telHref } from "@/lib/content";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -68,8 +68,8 @@ export function Footer() {
                 </a>
               ))}
 
-              {SITE.phone && (
-                <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:text-lime">
+              {SITE.phone && telHref && (
+                <a href={telHref} className="data transition-colors hover:text-lime">
                   {SITE.phone}
                 </a>
               )}
