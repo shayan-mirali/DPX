@@ -26,7 +26,7 @@ export function Venue() {
             <RevealLines
               className="display t-h2"
               lines={[
-                <span key="a">Golf, indoors,</span>,
+                <span key="a">Golf, indoors</span>,
                 <span key="b">
                   done <span className="text-gradient-lime">properly.</span>
                 </span>,

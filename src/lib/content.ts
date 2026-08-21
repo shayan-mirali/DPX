@@ -104,8 +104,75 @@ export const NAV = [
   { label: "The Venue", href: "#venue" },
   { label: "Technology", href: "#tech" },
   { label: "Who It's For", href: "#who" },
+  { label: "Pricing", href: "#pricing" },
   { label: "What's Coming", href: "#coming" },
 ] as const;
+
+/* ------------------------------------------------------------------ *
+ *  Pricing
+ *
+ *  Straight from DPX_Golf_Full_Pricing_1_to_4_Hours.pdf. Only the bay
+ *  TOTAL is stored — the "each" figure underneath it is total ÷ players,
+ *  computed at render. Every price in the PDF divides exactly, so there
+ *  is nothing to round and, more usefully, no second set of numbers to
+ *  keep in step when a rate changes. To edit a price, change one number
+ *  in the row below and the per-person figure follows.
+ *
+ *  `totals` runs 1 hour → 4 hours, matching PRICING.durations.
+ * ------------------------------------------------------------------ */
+export const PRICING = {
+  durations: [1, 2, 3, 4],
+
+  periods: [
+    {
+      id: "offpeak",
+      label: "Weekday Off-Peak",
+      when: "Monday – Friday · 10am – 4pm",
+      rows: [
+        { players: 1, totals: [15, 28, 40, 52] },
+        { players: 2, totals: [24, 44, 64, 84] },
+        { players: 3, totals: [30, 57, 84, 111] },
+        { players: 4, totals: [36, 68, 100, 132] },
+      ],
+    },
+    {
+      id: "peak",
+      label: "Peak & Weekends",
+      when: "Monday – Friday 4pm – 10pm · Saturday & Sunday all day",
+      rows: [
+        { players: 1, totals: [25, 48, 69, 88] },
+        { players: 2, totals: [36, 68, 96, 124] },
+        { players: 3, totals: [45, 84, 120, 156] },
+        { players: 4, totals: [56, 104, 148, 192] },
+      ],
+    },
+  ],
+
+  /* Shown under the table. Anything that is a condition of the price
+   * rather than the price itself belongs here. */
+  notes: [
+    "Prices are per bay, not per person — split it however you like.",
+    "Up to 4 players per bay. Clubs are available if you don't have your own.",
+  ],
+} as const;
+
+/**
+ * "£15", or "£12.50" if it ever needs to be. Every price on the current
+ * rate card is whole pounds and every bay total divides exactly by its
+ * player count — but the per-person figure is derived, so a future edit
+ * to a total could land on a half. Formatting for that here means one
+ * price change can never render "£12.5" at anybody.
+ */
+export const gbp = (n: number) => `£${Number.isInteger(n) ? n : n.toFixed(2)}`;
+
+/** Per-player share of a bay total. */
+export const perPlayer = (total: number, players: number) => total / players;
+
+/** Every bay total on the card, cheapest first — feeds `priceRange`. */
+const ALL_TOTALS = PRICING.periods.flatMap((p) => p.rows.flatMap((r) => [...r.totals]));
+
+/** "£15 – £192". Google shows this on the business panel. */
+export const priceRange = `${gbp(Math.min(...ALL_TOTALS))} – ${gbp(Math.max(...ALL_TOTALS))}`;
 
 /* The eight TrackMan parameters called out in the brief. Values are
  * illustrative of a typical drive and are labelled as a sample readout

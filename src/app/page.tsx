@@ -3,6 +3,7 @@ import { Ticker } from "@/components/Ticker";
 import { Venue } from "@/components/Venue";
 import { Tech } from "@/components/Tech";
 import { Audience } from "@/components/Audience";
+import { Pricing } from "@/components/Pricing";
 import { Roadmap } from "@/components/Roadmap";
 import { Interlude } from "@/components/Interlude";
 import { Book } from "@/components/Book";
@@ -15,6 +16,7 @@ export default function Page() {
       <Venue />
       <Tech />
       <Audience />
+      <Pricing />
       <Roadmap />
       <Interlude />
       <Book />

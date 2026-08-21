@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-import { SITE } from "@/lib/content";
+import { SITE, priceRange } from "@/lib/content";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Preloader } from "@/components/Preloader";
@@ -71,9 +71,9 @@ export const viewport: Viewport = {
 };
 
 /* Local business structured data — this is what puts the venue on the
- * map panel in Google results, so the postal address matters. Fields we
- * don't have yet (phone, opening hours) are omitted rather than filled
- * with plausible-looking inventions. */
+ * map panel in Google results, so the postal address matters. Everything
+ * here derives from `content.ts`, including the price range, so the panel
+ * cannot drift out of step with the rate card on the page. */
 const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "SportsActivityLocation",
@@ -89,6 +89,8 @@ const JSON_LD = {
   },
   email: SITE.emails[0],
   telephone: SITE.phone,
+  priceRange,
+  currenciesAccepted: "GBP",
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",

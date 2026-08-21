@@ -44,8 +44,9 @@ export function Tech() {
             <Reveal delay={200}>
               <p className="t-lead mt-8 max-w-[34rem] text-bone/60">
                 Every shot is measured the moment it leaves the club. No guesswork,
-                no &ldquo;that felt about right&rdquo; — just the eight numbers that
-                actually move your golf, on screen before the ball lands.
+                no &ldquo;that felt about right&rdquo; — just clear, accurate data on
+                exactly what happens between the club face and the ball, on screen
+                before it lands.
               </p>
             </Reveal>
 

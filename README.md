@@ -17,18 +17,70 @@ npm run assets     # regenerate images in public/img from _assets/
 
 ---
 
+## Editing the site
+
+**Almost all copy lives in one file: `src/lib/content.ts`.** Editing it needs
+no React — just don't delete the quote marks or commas. Everything below is
+read from there and nowhere else:
+
+| What | Where in `content.ts` |
+| --- | --- |
+| Address, phone, both email addresses | `SITE.address`, `SITE.phone`, `SITE.emails` |
+| Opening hours and days | `SITE.hours` |
+| Booking link | `SITE.bookingUrl` |
+| Prices | `PRICING` |
+| Nav labels | `NAV` |
+| The eight TrackMan readouts | `METRICS`, `TICKER` |
+| Venue feature cards | `FEATURES` |
+| "Who it's for" cards | `AUDIENCES` |
+| Membership / coaching / competitions | `ROADMAP` |
+
+Two of those are worth calling out:
+
+**`SITE.hours`** drives both the visible "Every day · 10:00 – 22:00" label and
+the Google structured data. Change which days the venue opens and the label
+re-derives itself — `daysLabel` collapses runs of days into "Mon – Fri" and
+prints "Every day" at seven, so it stays correct without being edited.
+
+**`SITE.bookingUrl`** is `null` today, so every "Book a Bay" control scrolls to
+the enquiry form. Put TrackMan's booking URL in and all of them switch to
+opening it in a new tab instead. One line, one file, no other edits.
+
+### Prices
+
+`PRICING` holds **only the bay total** for each player-count × duration cell.
+The "£33 each" line underneath is `total ÷ players`, computed at render, and
+`priceRange` in the structured data derives from the same numbers. So a price
+change is one number in one place, and the per-person figure, the Google
+price range and the table can't drift apart.
+
+Every price on the current card divides exactly by its player count. If a
+future edit doesn't, `gbp()` prints "£12.50" rather than "£12.5".
+
+### Headlines and images
+
+Section headlines ("Golf, indoors / done properly.") sit in the component
+files rather than `content.ts`, because each line is animated separately.
+Still editable — it's just code rather than a content file.
+
+Images: drop replacements into `public/img/` under the same filenames, or into
+`_assets/` and re-run `npm run assets`. See **Assets** below.
+
+**There is no CMS.** Every edit is a file change plus a deploy. If the venue
+needs to change prices or swap photos without touching the repo, that's a
+separate piece of work — Decap CMS is the cheapest fit given the Netlify host.
+
+---
+
 ## Before this goes live
 
-These are the things that need a real answer. They're marked `TODO` in
-`src/lib/content.ts` and render as visible "coming shortly" placeholders
-rather than invented details.
-
-| What | Where |
-| --- | --- |
-| Street address, phone, email, opening hours | `src/lib/content.ts` → `SITE` |
-| Booking system URL, if one exists | `SITE.bookingUrl` |
-| Enquiry delivery target | `ENQUIRY_WEBHOOK_URL` env var (see below) |
-| Real domain | `metadataBase` in `src/app/layout.tsx` |
+| What | Where | Status |
+| --- | --- | --- |
+| Street address, phone, email, opening hours | `src/lib/content.ts` → `SITE` | done |
+| Pricing | `src/lib/content.ts` → `PRICING` | done |
+| Booking system URL, if one exists | `SITE.bookingUrl` | **outstanding** |
+| Enquiry delivery target | `ENQUIRY_WEBHOOK_URL` env var (see below) | **outstanding** |
+| Real domain | `metadataBase` in `src/app/layout.tsx` | set to `dpxgolf.co.uk`; confirm before launch |
 
 ### The enquiry form
 
