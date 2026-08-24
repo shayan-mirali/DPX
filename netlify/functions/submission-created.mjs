@@ -84,9 +84,11 @@ export default async function handler(req) {
     }
 
     /* Resend will only send from a domain verified in their dashboard.
-     * Until dpxgolf.co.uk is verified, their shared onboarding sender
-     * works for testing — it will land in spam for real customers, so
-     * verify the domain before launch. */
+     * The shared onboarding sender below is a sandbox: it can ONLY send
+     * to the address the Resend account was registered with, and returns
+     * 403 for anyone else. So until dpxgolf.co.uk is verified, this
+     * reaches you and nobody else — it is not a soft fallback, real
+     * customers get no confirmation at all. */
     const from = process.env.CONFIRMATION_FROM ?? "DPX Golf <onboarding@resend.dev>";
 
     const interest = INTEREST_LABELS[data.interest] ?? data.interest ?? "General enquiry";

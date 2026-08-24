@@ -144,10 +144,17 @@ has already verified, so spam never gets a reply.
 enquiry is still stored and the venue still gets its notification. Only the
 customer's confirmation is skipped.
 
-**Before launch, verify the domain in Resend.** Without a verified domain the
-function falls back to Resend's shared `onboarding@resend.dev` sender, which
-works for testing but will land in spam for real customers. Once
-`dpxgolf.co.uk` is verified, set `CONFIRMATION_FROM`:
+**Verify the domain in Resend — this is required, not optional.** Resend's
+shared `onboarding@resend.dev` sender is a sandbox: it will only deliver to the
+address the Resend account was registered with, and returns 403 for any other
+recipient. Until `dpxgolf.co.uk` is verified, confirmations reach you and
+nobody else.
+
+That does make testing easy — submit the enquiry form using your own Resend
+account address and the confirmation will arrive. Just don't read that as
+proof it works for customers; it doesn't until the domain is verified.
+
+Once verified, set `CONFIRMATION_FROM`:
 
 ```bash
 CONFIRMATION_FROM="DPX Golf <hello@dpxgolf.co.uk>"
