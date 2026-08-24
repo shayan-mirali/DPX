@@ -30,6 +30,10 @@ export function Book() {
   const [interest, setInterest] = useState("bay");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  /* Where "send it by email instead" points when delivery is unavailable.
+   * Built from what the visitor already typed, so a failed submit costs
+   * them a click rather than the whole form. */
+  const [mailtoHref, setMailtoHref] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   // The roadmap cards deep-link into this form with a topic preselected.
@@ -75,6 +79,24 @@ export function Book() {
     fd.forEach((value, key) => {
       if (typeof value === "string") params.append(key, value);
     });
+
+    /* A form that cannot deliver should still get the enquiry to the
+     * venue. Compose the same details as a mail draft, ready if the POST
+     * turns out to go nowhere. */
+    const lines = [
+      `Name: ${fd.get("name")}`,
+      `Email: ${fd.get("email")}`,
+      fd.get("phone") ? `Phone: ${fd.get("phone")}` : null,
+      `Interested in: ${label ?? "General"}`,
+      "",
+      String(fd.get("message") ?? "").trim() || "(no message)",
+    ].filter(Boolean).join("\n");
+
+    setMailtoHref(
+      `mailto:${SITE.emails[0]}?subject=${encodeURIComponent(
+        String(fd.get("subject"))
+      )}&body=${encodeURIComponent(lines)}`
+    );
 
     try {
       const res = await fetch(FORM_ENDPOINT, {
@@ -335,7 +357,14 @@ export function Book() {
                   {status === "unconfigured" && (
                     <span className="text-amber">
                       {message ||
-                        "Our enquiry form isn't connected yet — please call or email us using the details on this page and we'll get you booked in."}
+                        "We couldn't send that automatically — but nothing you typed is lost."}{" "}
+                      <a
+                        href={mailtoHref}
+                        className="font-medium text-lime underline underline-offset-4 hover:text-bone"
+                      >
+                        Send it by email instead
+                      </a>
+                      , or call us on the number above.
                     </span>
                   )}
                   {status === "error" && <span className="text-amber">{message}</span>}
