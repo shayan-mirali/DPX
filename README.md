@@ -121,6 +121,49 @@ That fail-closed behaviour is deliberate throughout: a form that reports
 success while binning real customer enquiries is worse than one that admits it
 isn't connected.
 
+#### Confirmation email to the customer
+
+When an enquiry comes in, the person who sent it gets an automatic
+confirmation — a thank-you, a copy of what they submitted, and the venue's
+phone, address and hours.
+
+`netlify/functions/submission-created.mjs` does this. Netlify triggers event
+functions by filename, so the name *is* the wiring — there is nothing to
+configure in the UI for it to fire, and it only runs on submissions Netlify
+has already verified, so spam never gets a reply.
+
+**It needs an email provider.** Delivery goes through
+[Resend](https://resend.com) (free tier: 3,000/month):
+
+1. Create a Resend account and an API key
+2. In Netlify: **Configuration → Environment variables** → add
+   `RESEND_API_KEY`
+3. Redeploy
+
+**Until then nothing breaks.** With no key the function logs and exits — the
+enquiry is still stored and the venue still gets its notification. Only the
+customer's confirmation is skipped.
+
+**Before launch, verify the domain in Resend.** Without a verified domain the
+function falls back to Resend's shared `onboarding@resend.dev` sender, which
+works for testing but will land in spam for real customers. Once
+`dpxgolf.co.uk` is verified, set `CONFIRMATION_FROM`:
+
+```bash
+CONFIRMATION_FROM="DPX Golf <hello@dpxgolf.co.uk>"
+CONFIRMATION_REPLY_TO="markpaxton@dpxgolf.co.uk"   # optional
+```
+
+The function never throws. Netlify retries failed event functions, and a retry
+loop would mean emailing the same customer over and over — so every failure
+path returns 200 and logs instead.
+
+**The venue's contact details are duplicated inside that function**, not
+imported from `content.ts`. A Netlify function is bundled separately from the
+Next.js app and doesn't share its path aliases, and a bundling failure there
+would break the deploy. Four values, at the top of the file — if the phone
+number or hours change in `content.ts`, change them there too.
+
 #### Sending somewhere else instead
 
 `POST /api/enquiry` is still in the repo, unused, for the day enquiries should
