@@ -8,6 +8,13 @@ const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
   addressOneLine
 )}`;
 
+/* Netlify detects forms by scanning deployed HTML, which a React-rendered
+ * page has none of at build time. `public/__forms.html` declares the form
+ * instead, and submissions are posted here as url-encoded data. Both the
+ * endpoint and the name must match that file. */
+const FORM_ENDPOINT = "/__forms.html";
+const FORM_NAME = "enquiry";
+
 const INTERESTS = [
   { value: "bay", label: "Book a bay" },
   { value: "membership", label: "Membership" },
@@ -37,33 +44,65 @@ export function Book() {
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Grab the node now: React nulls `currentTarget` once the handler
+    // returns, and everything below this point is after an await.
+    const form = e.currentTarget;
+
     setStatus("sending");
     setMessage("");
 
-    const fd = new FormData(e.currentTarget);
-    const payload = Object.fromEntries(fd.entries());
+    const fd = new FormData(form);
+
+    /* Honeypot. Netlify bins these server-side too (see `netlify-honeypot`
+     * in public/__forms.html); this is the belt to that pair of braces.
+     * Report success rather than an error — a bot that learns it was
+     * caught is a bot that comes back differently. */
+    if (String(fd.get("company") ?? "").trim()) {
+      setStatus("sent");
+      form.reset();
+      setInterest("bay");
+      return;
+    }
+
+    // Gives the venue's notification email a subject worth reading in a
+    // full inbox, rather than every enquiry looking identical.
+    const label = INTERESTS.find((i) => i.value === fd.get("interest"))?.label;
+    fd.set("subject", `DPX Golf enquiry — ${label ?? "General"}`);
+
+    // Netlify wants url-encoded, not multipart. FormData values are
+    // string | File here and there is no file input, but narrow anyway.
+    const params = new URLSearchParams();
+    fd.forEach((value, key) => {
+      if (typeof value === "string") params.append(key, value);
+    });
 
     try {
-      const res = await fetch("/api/enquiry", {
+      const res = await fetch(FORM_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
       });
-      const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
         setStatus("sent");
-        formRef.current?.reset();
+        form.reset();
         setInterest("bay");
-      } else if (res.status === 503) {
-        // No delivery target configured yet. Say so plainly rather than
-        // showing a success state over a dropped enquiry.
-        setStatus("unconfigured");
-        setMessage(data.message ?? "");
-      } else {
-        setStatus("error");
-        setMessage(data.message ?? "Something went wrong. Please try again.");
+        return;
       }
+
+      /* Nothing is handling the POST. Netlify's form endpoint only exists
+       * on a real deploy, so this is the normal state under `next dev`
+       * (which serves public/ as static files and answers POST with 405)
+       * and what you would also see if the site moved off Netlify, or if
+       * form detection never ran. Say so plainly rather than showing a
+       * success state over an enquiry that went nowhere. */
+      if (res.status === 404 || res.status === 405) {
+        setStatus("unconfigured");
+        return;
+      }
+
+      setStatus("error");
+      setMessage("We couldn't send that just now. Please try again shortly.");
     } catch {
       setStatus("error");
       setMessage("Couldn't reach the server. Please check your connection.");
@@ -258,6 +297,10 @@ export function Book() {
                   />
                 </label>
 
+                {/* Netlify matches the submission to the declaration in
+                    public/__forms.html by this name. */}
+                <input type="hidden" name="form-name" value={FORM_NAME} />
+
                 {/* Bot trap — real people never fill this in. */}
                 <input
                   type="text"
@@ -292,7 +335,7 @@ export function Book() {
                   {status === "unconfigured" && (
                     <span className="text-amber">
                       {message ||
-                        "The enquiry system isn't connected yet — please contact the venue directly."}
+                        "Our enquiry form isn't connected yet — please call or email us using the details on this page and we'll get you booked in."}
                     </span>
                   )}
                   {status === "error" && <span className="text-amber">{message}</span>}

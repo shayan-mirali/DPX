@@ -1,0 +1,36 @@
+<!doctype html>
+<!--
+  Netlify form definition — not a page anyone visits.
+
+  Netlify detects forms by scanning the DEPLOYED HTML at build time. A
+  Next.js page is rendered by React at request time, so there is nothing
+  for that scan to find in the page itself; this static file is the
+  documented workaround. It declares the form and its fields, and the
+  real form in `src/components/Book.tsx` POSTs here, url-encoded.
+
+  Every `name` used by the real form must appear below, or Netlify drops
+  that field silently. If you add a field to the enquiry form, add it
+  here too — that is the one place these two can drift apart.
+
+  `netlify-honeypot` names the bot-trap field: Netlify bins any
+  submission that arrives with it filled in, without telling the bot.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DPX Golf — form definitions</title>
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <form name="enquiry" data-netlify="true" netlify-honeypot="company" hidden>
+      <input type="hidden" name="form-name" value="enquiry" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="text" name="interest" />
+      <textarea name="message"></textarea>
+      <input type="text" name="subject" />
+      <input type="text" name="company" />
+    </form>
+  </body>
+</html>

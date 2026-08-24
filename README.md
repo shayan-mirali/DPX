@@ -79,22 +79,60 @@ separate piece of work — Decap CMS is the cheapest fit given the Netlify host.
 | Street address, phone, email, opening hours | `src/lib/content.ts` → `SITE` | done |
 | Pricing | `src/lib/content.ts` → `PRICING` | done |
 | Booking system URL, if one exists | `SITE.bookingUrl` | **outstanding** |
-| Enquiry delivery target | `ENQUIRY_WEBHOOK_URL` env var (see below) | **outstanding** |
+| Enquiry delivery | Netlify Forms (see below) | wired; **add the email notification in the Netlify UI** |
 | Real domain | `metadataBase` in `src/app/layout.tsx` | set to `dpxgolf.co.uk`; confirm before launch |
 
 ### The enquiry form
 
-`POST /api/enquiry` forwards submissions to whatever `ENQUIRY_WEBHOOK_URL`
-points at — Zapier, Make, Formspree, a Slack incoming webhook, a CRM.
+Submissions go to **Netlify Forms**. No API key, no third-party account, no
+monthly bill — the site is already hosted on Netlify, and Netlify stores every
+submission and can email them on arrival.
+
+**One manual step, in the Netlify UI, done once:**
+
+> Site configuration → Forms → **Form notifications** → *Add notification* →
+> *Email notification* → form `enquiry` → the address that should receive them.
+
+Without that, submissions still arrive and are stored — they just sit in
+**Forms** in the Netlify dashboard rather than landing in an inbox. Nothing is
+lost either way.
+
+**How it's wired.** Netlify detects forms by scanning deployed HTML at build
+time, and a React-rendered page has none for it to find. So the form is
+declared in a static file, `public/__forms.html`, and the real form in
+`src/components/Book.tsx` POSTs to `/__forms.html` as url-encoded data.
+
+**If you add a field to the form, add it to `public/__forms.html` too.** That
+is the one place the two can drift: an undeclared field is dropped silently by
+Netlify, with no error anywhere.
+
+Spam is handled by a honeypot field (`company`) declared via
+`netlify-honeypot`, not a CAPTCHA — nothing for a real visitor to solve.
+
+#### It does not deliver on `npm run dev`
+
+Netlify's form endpoint only exists on a real deploy. Locally, `next dev`
+serves `public/` as static files and answers a POST with 405, so the form shows
+*"Our enquiry form isn't connected yet — please call or email us…"* and the
+contact details beside it. **That is the correct local result, not a bug.**
+Test it on a Netlify deploy preview.
+
+That fail-closed behaviour is deliberate throughout: a form that reports
+success while binning real customer enquiries is worse than one that admits it
+isn't connected.
+
+#### Sending somewhere else instead
+
+`POST /api/enquiry` is still in the repo, unused, for the day enquiries should
+go to a CRM, Slack or Zapier rather than Netlify. It validates, strips the
+honeypot and forwards to whatever `ENQUIRY_WEBHOOK_URL` names:
 
 ```bash
 ENQUIRY_WEBHOOK_URL=https://hooks.zapier.com/...
 ```
 
-**With that variable unset the endpoint returns 503, not 200,** and the form
-tells the visitor it isn't connected. That's deliberate: a form that reports
-success while binning real customer enquiries is worse than one that admits
-it isn't wired up. Set the variable before launch.
+To switch over, set that variable and change `FORM_ENDPOINT` in `Book.tsx` to
+`/api/enquiry`, posting JSON instead of url-encoded data.
 
 ---
 

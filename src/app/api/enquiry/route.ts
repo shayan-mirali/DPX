@@ -3,12 +3,20 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 /* ------------------------------------------------------------------ *
- *  Enquiry intake
+ *  Enquiry intake — the OPTIONAL webhook route.
  *
- *  Forwards submissions to whatever webhook you point ENQUIRY_WEBHOOK_URL
- *  at — Zapier, Make, Formspree, a Slack incoming webhook, your own CRM.
+ *  NOT what the site uses by default. The enquiry form posts straight to
+ *  Netlify Forms (see `public/__forms.html` and the submit handler in
+ *  `src/components/Book.tsx`), because that delivers with no third-party
+ *  account, no API key and nothing to keep paying for.
  *
- *  If that variable is missing it returns 503 rather than 200. That is
+ *  This route is kept for the day the venue wants enquiries in a CRM,
+ *  a Slack channel or a Zapier flow instead. Point ENQUIRY_WEBHOOK_URL
+ *  at it and change FORM_ENDPOINT in Book.tsx to "/api/enquiry", posting
+ *  JSON rather than url-encoded data — the handler below already
+ *  validates, strips the honeypot and normalises the payload.
+ *
+ *  With the variable unset it returns 503 rather than 200. That is
  *  deliberate: a form that reports success while quietly binning real
  *  customer enquiries is far worse than one that admits it isn't wired
  *  up yet.
