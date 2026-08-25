@@ -1,0 +1,16 @@
+# The PHP build is deployed to a Linux host (IONOS/Apache). Keep LF endings
+# so files uploaded straight from a Windows working copy don't carry CRLF —
+# harmless for PHP itself, but .htaccess directives are less forgiving.
+*.php text eol=lf
+*.htaccess text eol=lf
+.htaccess text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.md text eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.webp binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

@@ -1,0 +1,9 @@
+# Stored enquiries contain customer names, emails and phone numbers.
+# Nothing in this directory may ever be served over HTTP.
+Require all denied
+
+# Fallback for Apache 2.2, which IONOS still runs on some plans.
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

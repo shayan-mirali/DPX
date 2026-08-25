@@ -1,0 +1,37 @@
+# ------------------------------------------------------------------
+#  DPX Golf — server config
+#
+#  IONOS runs Apache, so this is honoured. If the site is ever moved to
+#  nginx these rules need translating by hand — nothing here is optional.
+# ------------------------------------------------------------------
+
+DirectoryIndex index.php
+
+# Never serve the config (it holds the API key) or the enquiry log.
+<FilesMatch "^(config\.php|config\.sample\.php)$">
+  Require all denied
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# Long cache for static assets. index.php appends ?v=<mtime> to the CSS and
+# JS URLs, so a changed file is a new URL and this cache never goes stale.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>

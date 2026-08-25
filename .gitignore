@@ -6,3 +6,9 @@ out
 *.tsbuildinfo
 next-env.d.ts
 ~$*
+
+# PHP build — holds the Resend API key
+php/config.php
+# Stored enquiries: real customer names, emails and phone numbers
+php/storage/*.jsonl
+php/storage/rate.json
