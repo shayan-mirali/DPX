@@ -30,7 +30,15 @@ const BUILTINS = new Set([
   "curl_error", "curl_close", "http_response_code", "header", "error_log", "sprintf",
   "gmdate", "str_contains", "nl2br", "is_int", "unset", "empty", "isset", "exit",
   "filemtime", "array_key_exists", "strval", "intval", "abs", "round", "ucfirst",
+  "unlink", "require", "include", "printf", "str_replace", "in_array", "array_slice",
+  "htmlspecialchars_decode", "rtrim", "ltrim", "strtolower", "strtoupper", "sprintf",
 ]);
+
+// Magic and extension constants that are always available.
+const RUNTIME_CONST = [
+  "PHP_VERSION_ID", "PHP_VERSION", "PHP_EOL", "CURLOPT_NOBODY", "CURLOPT_URL",
+  "ENT_HTML5", "M_PI", "PHP_INT_MAX",
+];
 
 function walk(dir, out = []) {
   for (const n of readdirSync(dir)) {
@@ -101,7 +109,7 @@ if (!bad) console.log("  none");
 console.log("\nundefined constant uses:");
 let badC = 0;
 const seenC = new Set();
-const KNOWN_CONST = new Set(["ENT_QUOTES","ENT_SUBSTITUTE","STR_PAD_LEFT","PHP_EOL","LOCK_EX","FILE_APPEND",
+const KNOWN_CONST = new Set([...RUNTIME_CONST,"ENT_QUOTES","ENT_SUBSTITUTE","STR_PAD_LEFT","PHP_EOL","LOCK_EX","FILE_APPEND",
   "JSON_UNESCAPED_UNICODE","JSON_UNESCAPED_SLASHES","FILTER_VALIDATE_EMAIL","CURLOPT_RETURNTRANSFER",
   "CURLOPT_POST","CURLOPT_TIMEOUT","CURLOPT_HTTPHEADER","CURLOPT_POSTFIELDS","CURLINFO_HTTP_CODE"]);
 for (const c of constUses) {
