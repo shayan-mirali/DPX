@@ -19,15 +19,22 @@ require_once __DIR__ . '/inc/auth.php';
 
 $hash = '';
 $tooShort = false;
+$weak = false;
+$email = 'admin@dpx.app';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $pw = $_POST['password'] ?? '';
     $pw = is_string($pw) ? $pw : '';
+    $email = trim((string) ($_POST['email'] ?? ''));
 
-    if (strlen($pw) < 12) {
+    /* Eight is the floor, not a recommendation. Anything shorter is not
+     * worth the ceremony of hashing. Below twelve we say so and carry on
+     * rather than refusing — it's the owner's site and their call. */
+    if (strlen($pw) < 8) {
         $tooShort = true;
     } else {
         $hash = password_hash($pw, PASSWORD_DEFAULT);
+        $weak = strlen($pw) < 12;
     }
 }
 
@@ -56,16 +63,20 @@ $alreadySet = admin_password_hash() !== '';
     <?php endif; ?>
 
     <?php if ($tooShort): ?>
-      <p class="flash err">Use at least 12 characters. This is the only lock on the dashboard.</p>
+      <p class="flash err">Use at least 8 characters.</p>
     <?php endif; ?>
 
     <form method="post" action="setup.php">
-      <label class="field" for="pw">
+      <label class="field" for="em">
+        <span class="lab">Email to sign in with</span>
+        <input type="email" id="em" name="email" value="<?= e($email) ?>" required>
+      </label>
+      <label class="field" for="pw" style="margin-top:14px">
         <span class="lab">New password</span>
         <input type="password" id="pw" name="password" autocomplete="new-password" autofocus required>
         <span class="hint">
-          At least 12 characters. A few unrelated words is both stronger and
-          easier to remember than something short with punctuation in it.
+          Eight characters minimum. A few unrelated words beats something
+          short with punctuation in it — longer matters far more than fiddly.
         </span>
       </label>
       <button type="submit" class="btn">Generate hash</button>
@@ -73,14 +84,19 @@ $alreadySet = admin_password_hash() !== '';
 
     <?php if ($hash !== ''): ?>
       <hr style="border:0;border-top:1px solid var(--line);margin:26px 0">
-      <p class="lab">Paste this into config.php</p>
-      <code style="display:block;padding:12px;word-break:break-all;margin-bottom:14px"><?= e($hash) ?></code>
-      <p class="hint">
-        In <code>config.php</code>, set:<br>
-        <code style="display:block;margin-top:8px">'admin_password_hash' =&gt; '<?= e($hash) ?>',</code>
-      </p>
+
+      <?php if ($weak): ?>
+        <p class="flash err" style="margin-bottom:16px">
+          That password is on the short side. It will work, but it is the only
+          lock on customer enquiry data — worth lengthening when you get a moment.
+        </p>
+      <?php endif; ?>
+
+      <p class="lab">Copy these two lines into config.php</p>
+      <code style="display:block;padding:12px;word-break:break-all;line-height:1.8">'admin_email' =&gt; '<?= e($email) ?>',<br>'admin_password_hash' =&gt; '<?= e($hash) ?>',</code>
       <p class="hint" style="margin-top:16px">
-        Then <strong>delete setup.php</strong> and sign in at
+        They go inside the <code>return [ ... ];</code> block. Then
+        <strong>delete setup.php</strong> and sign in at
         <a href="login.php">login.php</a>.
       </p>
     <?php endif; ?>

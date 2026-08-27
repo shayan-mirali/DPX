@@ -11,10 +11,13 @@
 declare(strict_types=1);
 
 return [
-    /* Admin dashboard password, as a hash — never the password itself.
-     * Generate it with admin/setup.php, paste the result here, then delete
-     * that file. Leave empty and the dashboard cannot be logged into at
-     * all, which is the right default for a site nobody has set up yet. */
+    /* Admin dashboard sign-in. The password is stored as a hash, never in
+     * plain text — admin/setup.php generates both lines ready to paste,
+     * then delete that file.
+     *
+     * Leave the hash empty and the dashboard cannot be logged into at all,
+     * which is the right default for a site nobody has set up yet. */
+    'admin_email' => 'admin@dpx.app',
     'admin_password_hash' => '',
 
     /* Resend API key — https://resend.com/api-keys

@@ -2,10 +2,14 @@
 /**
  * Admin authentication.
  *
- * One shared password for the venue, stored as a hash in config.php. No
- * accounts, no registration, no password reset by email — for a single
- * site run by a couple of people, every one of those is more attack
- * surface than it is convenience.
+ * One shared login for the venue — an email address and a password —
+ * both set in config.php. No registration, no password reset by email:
+ * for a single site run by a couple of people, each of those is more
+ * attack surface than it is convenience.
+ *
+ * The password is stored hashed, never in plain text. That costs nothing
+ * to set up (config.php is written once) and means the password cannot be
+ * read back out of the file if anyone ever gets sight of it.
  *
  * The session cookie is httponly and same-site, the session id is
  * regenerated on login, and failed attempts are throttled per IP.
@@ -66,6 +70,12 @@ function admin_is_https(): bool
 function admin_password_hash(): string
 {
     return (string) (admin_config()['admin_password_hash'] ?? '');
+}
+
+/** The email address that signs in. */
+function admin_email(): string
+{
+    return (string) (admin_config()['admin_email'] ?? '');
 }
 
 function admin_is_logged_in(): bool
@@ -152,10 +162,19 @@ function admin_login_clear(): void
     @file_put_contents(LOGIN_RATE_FILE, json_encode($data), LOCK_EX);
 }
 
-function admin_login(string $password): bool
+function admin_login(string $email, string $password): bool
 {
     $hash = admin_password_hash();
     if ($hash === '') {
+        return false;
+    }
+
+    /* Compared case-insensitively — nobody remembers whether they set up
+     * the address with a capital letter, and it is not a secret anyway.
+     * hash_equals keeps the comparison constant-time regardless. */
+    $expected = strtolower(trim(admin_email()));
+    if ($expected !== '' && !hash_equals($expected, strtolower(trim($email)))) {
+        admin_login_record_failure();
         return false;
     }
 

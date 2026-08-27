@@ -29,7 +29,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $error = 'No admin password is set yet. See the note below.';
     } elseif (admin_login_blocked()) {
         $error = 'Too many attempts. Wait fifteen minutes and try again.';
-    } elseif (admin_login(post_str_login('password'))) {
+    } elseif (admin_login(post_str_login('email'), post_str_login('password'))) {
         header('Location: index.php');
         exit;
     } else {
@@ -65,15 +65,18 @@ function post_str_login(string $k): string
     <?php if (!$configured): ?>
       <p class="flash err">No admin password has been set.</p>
       <p class="hint">
-        Open <code>setup.php</code> in this folder to turn a password of your
-        choosing into a hash, paste that into <code>config.php</code>, then
-        delete <code>setup.php</code>.
+        Open <code>setup.php</code> in this folder — it writes the whole
+        <code>config.php</code> line for you to paste in. Delete it afterwards.
       </p>
     <?php else: ?>
       <input type="hidden" name="csrf" value="<?= e(admin_csrf_token()) ?>">
-      <label class="field" for="pw">
+      <label class="field" for="em">
+        <span class="lab">Email</span>
+        <input type="email" id="em" name="email" autocomplete="username" autofocus required>
+      </label>
+      <label class="field" for="pw" style="margin-top:14px">
         <span class="lab">Password</span>
-        <input type="password" id="pw" name="password" autocomplete="current-password" autofocus required>
+        <input type="password" id="pw" name="password" autocomplete="current-password" required>
       </label>
       <button type="submit" class="btn">Sign in</button>
     <?php endif; ?>

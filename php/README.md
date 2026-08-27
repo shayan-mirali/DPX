@@ -85,13 +85,18 @@ touching files or redeploying anything.
 
 ### First-time setup
 
-1. Open `admin/setup.php`, type the password you want, press **Generate hash**
-2. Paste the hash into `config.php` as `admin_password_hash`
+1. Open `admin/setup.php`, enter the email and password you want
+2. Copy the two lines it gives you into `config.php`
 3. **Delete `admin/setup.php`**
 4. Sign in at `admin/login.php`
 
 Nobody can log in until step 2 is done, which is the right default for a site
 that has just been uploaded.
+
+The password is stored hashed rather than in plain text. That is a one-off
+cost at setup and means the password cannot be read back out of `config.php`
+by anyone who gets sight of the file — which matters more than usual here,
+because the dashboard is where customer enquiries live.
 
 ### What it edits
 
@@ -125,9 +130,15 @@ and the price range in the Google listing data, both update themselves.
 
 ### Security
 
-Single shared password hashed with `password_hash`. Sessions are httponly and
-same-site, the session id is regenerated on login, every form carries a CSRF
-token, and failed logins are throttled to 8 per IP per 15 minutes.
+One shared email and password. The password is hashed with `password_hash`;
+the email is compared case-insensitively, since it is not a secret. Sessions
+are httponly and same-site, the session id is regenerated on login, every form
+carries a CSRF token, and failed logins are throttled to 8 per IP per 15
+minutes.
+
+**Password length is the thing that matters here.** The throttle makes online
+guessing slow, but this login guards customer names, emails and phone numbers.
+A few unrelated words beats something short with punctuation in it.
 
 The login throttle fails **closed** — unlike the enquiry rate limiter, which
 fails open. A form nobody can submit loses a customer; a password nobody can
