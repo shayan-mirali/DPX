@@ -1,0 +1,9 @@
+# Includes only. These are pulled in by the admin pages and must never be
+# requested directly — auth.php in particular defines the session and CSRF
+# handling and has no business being reachable on its own.
+Require all denied
+
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

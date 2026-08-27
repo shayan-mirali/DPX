@@ -1,80 +1,104 @@
 <?php
 /**
- * All site copy and data — the PHP counterpart of src/lib/content.ts.
+ * Site content — defaults plus whatever the admin dashboard has changed.
  *
- * This is the one file to edit for text, prices, hours or contact
- * details. Everything else reads from here, so a change lands in the
- * page, the structured data and the emails at once.
+ * The shipped copy lives in inc/defaults.php. Admin edits are written to
+ * storage/content.json and merged over the top here, which keeps the two
+ * strictly separate: the dashboard never rewrites PHP, so a bad edit can
+ * produce wrong words but never a syntax error or a white screen, and
+ * deleting storage/content.json restores the factory content exactly.
  *
- * Values are deliberately plain arrays rather than classes: whoever
- * maintains this next should be able to change a price without knowing
- * any PHP beyond "don't delete the quote marks".
+ * Everything downstream still reads SITE, PRICING, NAV and the rest as
+ * constants, exactly as before — the merge is invisible to the templates.
  */
 
 declare(strict_types=1);
 
-const SITE = [
-    'name'       => 'DPX Golf',
-    'tagline'    => 'Swing Better. Play More. Experience Golf Differently.',
-    'descriptor' => 'Premium Indoor Golf',
-    'town'       => 'Burton upon Trent',
+/** Where the dashboard writes its overrides. */
+function content_overrides_path(): string
+{
+    return __DIR__ . '/../storage/content.json';
+}
 
-    'address' => [
-        'line1'    => 'Oakwood House',
-        'line2'    => 'Bretby Business Park',
-        'line3'    => 'Ashby Road East',
-        'town'     => 'Burton upon Trent',
-        'postcode' => 'DE15 0PS',
-        'country'  => 'GB',
-    ],
+/**
+ * Merge overrides over defaults.
+ *
+ * Associative arrays merge key by key, so an override need only carry the
+ * keys it actually changes. Lists are REPLACED wholesale — for a list of
+ * price rows or feature cards, merging by index would leave orphaned
+ * entries behind whenever the admin removes one.
+ *
+ * @param array<mixed> $base
+ * @param array<mixed> $over
+ * @return array<mixed>
+ */
+function content_merge(array $base, array $over): array
+{
+    if (array_is_list($over)) {
+        return $over;
+    }
 
-    /* NOTE: these two arrived on different domains — dpxgolf.co.uk and
-     * dpx.co.uk. Entered exactly as supplied; worth confirming the second
-     * isn't a typo before launch. */
-    'emails' => ['markpaxton@dpxgolf.co.uk', 'heatherfisher@dpx.co.uk'],
+    foreach ($over as $k => $v) {
+        if (is_array($v) && isset($base[$k]) && is_array($base[$k])) {
+            $base[$k] = content_merge($base[$k], $v);
+        } else {
+            $base[$k] = $v;
+        }
+    }
 
-    'phone' => '+44 7368 805031',
+    return $base;
+}
 
-    /* Seven days a week, 10:00–22:00. Both the visible label and the
-     * structured data derive from this, so changing which days the venue
-     * opens means editing `days` and nothing else. */
-    'hours' => [
-        'opens' => '10:00',
-        'closes' => '22:00',
-        'days' => [
-            'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-            'Friday', 'Saturday', 'Sunday',
-        ],
-    ],
+/**
+ * The live content: defaults with any saved overrides applied.
+ *
+ * A missing, unreadable or malformed overrides file is ignored rather
+ * than fatal. Serving the factory copy is a far better failure than
+ * serving nothing, and the dashboard writes atomically so a half-written
+ * file should not occur in the first place.
+ *
+ * @return array<string,mixed>
+ */
+function content_all(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
 
-    /* Companies House details, required on the site by the Companies Act.
-     *
-     * NOTE: the registered office is NOT the venue. Customers visit
-     * Oakwood House, Bretby Business Park; this address is a legal
-     * formality and is labelled as such in the footer so nobody drives
-     * to the wrong door. */
-    'legal' => [
-        'company' => 'DPX Golf Ltd',
-        'companyNumber' => '17054770',
-        'office' => [
-            'line1' => 'Chartwell House',
-            'line2' => "4 St Paul's Square",
-            'town' => 'Burton upon Trent',
-            'country' => 'England',
-            'postcode' => 'DE14 2EF',
-        ],
-    ],
+    $defaults = require __DIR__ . '/defaults.php';
+    $cache = $defaults;
 
-    /* The venue is going with TrackMan's own booking system; the link
-     * lands once the contract is signed. Put the URL here and every
-     * "Book a Bay" control on the site switches from scrolling to the
-     * enquiry form to linking straight out at it — no other edits. */
-    'bookingUrl' => null,
+    $path = content_overrides_path();
+    if (is_file($path)) {
+        $raw = @file_get_contents($path);
+        if ($raw !== false && $raw !== '') {
+            $data = json_decode($raw, true);
+            if (is_array($data)) {
+                $cache = content_merge($defaults, $data);
+            } else {
+                error_log('[content] storage/content.json is not valid JSON — serving defaults');
+            }
+        }
+    }
 
-    /* Used for canonical URLs and Open Graph. Change this when the real
-     * domain goes live. */
-    'origin' => 'https://dpxgolf.co.uk',
-];
+    return $cache;
+}
+
+/* Published as constants so every template reads them exactly as it did
+ * before the dashboard existed. define() takes runtime values; `const`
+ * would not. */
+$__content = content_all();
+define('SITE', $__content['SITE']);
+define('NAV', $__content['NAV']);
+define('PRICING', $__content['PRICING']);
+define('METRICS', $__content['METRICS']);
+define('FEATURES', $__content['FEATURES']);
+define('AUDIENCES', $__content['AUDIENCES']);
+define('ROADMAP', $__content['ROADMAP']);
+define('TICKER', $__content['TICKER']);
+define('INTERESTS', $__content['INTERESTS']);
+unset($__content);
 
 /**
  * Attributes for every "Book a Bay" control. While bookingUrl is null
@@ -179,74 +203,11 @@ function address_one_line(): string
     ]);
 }
 
-const NAV = [
-    ['label' => 'The Venue',     'href' => '#venue'],
-    ['label' => 'Technology',    'href' => '#tech'],
-    ['label' => "Who It's For",  'href' => '#who'],
-    ['label' => 'Pricing',       'href' => '#pricing'],
-    ['label' => "What's Coming", 'href' => '#coming'],
-];
-
-/* ------------------------------------------------------------------ *
- *  Pricing
- *
- *  Straight from DPX_Golf_Full_Pricing_1_to_4_Hours.pdf. Only the bay
- *  TOTAL is stored — the "each" figure underneath it is total ÷ players,
- *  computed at render. Every price on the card divides exactly, so there
- *  is nothing to round and, more usefully, no second set of numbers to
- *  keep in step when a rate changes.
- *
- *  `totals` runs 1 hour → 4 hours, matching PRICING['durations'].
- * ------------------------------------------------------------------ */
-const PRICING = [
-    'durations' => [1, 2, 3, 4],
-
-    'periods' => [
-        [
-            'id'    => 'offpeak',
-            'label' => 'Weekday Off-Peak',
-            'when'  => 'Monday – Friday · 10am – 4pm',
-            'rows'  => [
-                ['players' => 1, 'totals' => [15, 28, 40, 52]],
-                ['players' => 2, 'totals' => [24, 44, 64, 84]],
-                ['players' => 3, 'totals' => [30, 57, 84, 111]],
-                ['players' => 4, 'totals' => [36, 68, 100, 132]],
-            ],
-        ],
-        [
-            'id'    => 'peak',
-            'label' => 'Peak & Weekends',
-            'when'  => 'Monday – Friday 4pm – 10pm · Saturday & Sunday all day',
-            'rows'  => [
-                ['players' => 1, 'totals' => [25, 48, 69, 88]],
-                ['players' => 2, 'totals' => [36, 68, 96, 124]],
-                ['players' => 3, 'totals' => [45, 84, 120, 156]],
-                ['players' => 4, 'totals' => [56, 104, 148, 192]],
-            ],
-        ],
-    ],
-
-    /* Shown immediately under the table, ahead of the notes. Consumer
-     * pricing has to state this, so it gets its own line rather than
-     * being buried in a bullet list. */
-    'vatNote' => 'All prices include VAT.',
-
-    /* Shown under the table. Anything that is a condition of the price
-     * rather than the price itself belongs here.
-     *
-     * TODO: the second line is unverified — nobody has confirmed that
-     * clubs are available to borrow. Confirm with the venue or remove. */
-    'notes' => [
-        'Prices are per bay, not per person — split it however you like.',
-        "Up to 4 players per bay. Clubs are available if you don't have your own.",
-    ],
-];
-
 /**
  * "£15", or "£12.50" if it ever needs to be. Every price on the current
  * rate card is whole pounds and every bay total divides exactly by its
- * player count — but the per-person figure is derived, so a future edit
- * to a total could land on a half.
+ * player count — but the per-person figure is derived, so an edit to a
+ * total could land on a half.
  */
 function gbp(float $n): string
 {
@@ -270,133 +231,13 @@ function price_range(): string
             }
         }
     }
+
+    if (!$all) {
+        return '';
+    }
+
     return gbp((float) min($all)) . ' – ' . gbp((float) max($all));
 }
-
-/* The eight TrackMan parameters called out in the brief. Values are
- * illustrative of a typical drive and are labelled as a sample readout
- * in the UI — they are not claims about any individual golfer. */
-const METRICS = [
-    ['key' => 'Club Speed',     'value' => 113.2, 'unit' => 'mph', 'decimals' => 1],
-    ['key' => 'Ball Speed',     'value' => 167.4, 'unit' => 'mph', 'decimals' => 1],
-    ['key' => 'Carry Distance', 'value' => 289,   'unit' => 'yds', 'decimals' => 0],
-    ['key' => 'Launch Angle',   'value' => 12.8,  'unit' => 'deg', 'decimals' => 1],
-    ['key' => 'Spin Rate',      'value' => 2540,  'unit' => 'rpm', 'decimals' => 0],
-    ['key' => 'Shot Shape',     'value' => 4.1,   'unit' => 'yds', 'decimals' => 1],
-    ['key' => 'Club Path',      'value' => 1.8,   'unit' => 'deg', 'decimals' => 1],
-    ['key' => 'Attack Angle',   'value' => -1.4,  'unit' => 'deg', 'decimals' => 1],
-];
-
-const FEATURES = [
-    [
-        'n' => '01',
-        'title' => 'Premium TrackMan Technology',
-        'body' => "One of the world's most advanced golf simulator systems — the same platform trusted by professionals, coaches and golfers worldwide.",
-        'span' => 'wide',
-    ],
-    [
-        'n' => '02',
-        'title' => 'Premium Golf Bays',
-        'body' => "Spacious simulator bays built for comfort, whether you're grooving a swing, playing a full round or settling in for a social game.",
-        'span' => 'tall',
-    ],
-    [
-        'n' => '03',
-        'title' => 'Play Iconic Courses',
-        'body' => 'Some of the greatest courses on earth, without leaving Burton upon Trent.',
-        'span' => 'normal',
-    ],
-    [
-        'n' => '04',
-        'title' => 'Practice Smarter',
-        'body' => 'Instant, honest feedback on every parameter that actually moves your game — club speed, ball speed, carry, launch, spin, shape, path and attack angle.',
-        'span' => 'wide',
-    ],
-    [
-        'n' => '05',
-        'title' => 'Relax & Socialise',
-        'body' => 'Comfortable seating, refreshments and a welcoming room to unwind in.',
-        'span' => 'normal',
-    ],
-];
-
-const AUDIENCES = [
-    [
-        'id' => 'golfers',
-        'title' => 'Golfers',
-        'body' => 'Practise all year round with accurate data and realistic course conditions built to move your performance forward.',
-        'note' => 'All year. Any weather.',
-    ],
-    [
-        'id' => 'beginners',
-        'title' => 'Beginners',
-        'body' => 'New to golf? No problem. The simulators are a relaxed, genuinely fun way to learn without the pressure of a first tee.',
-        'note' => 'No experience needed.',
-    ],
-    [
-        'id' => 'families',
-        'title' => 'Families',
-        'body' => 'Interactive golf games and challenges that work for every age in the group, not just the one with a handicap.',
-        'note' => 'All ages welcome.',
-    ],
-    [
-        'id' => 'corporate',
-        'title' => 'Corporate',
-        'body' => "A venue that isn't another meeting room — team building, client entertainment, networking and company events.",
-        'note' => 'Private bays available.',
-    ],
-    [
-        'id' => 'groups',
-        'title' => 'Groups & Celebrations',
-        'body' => 'Make the next occasion a different one: great golf, real competition and a night people actually remember.',
-        'note' => 'Book the room.',
-    ],
-];
-
-const ROADMAP = [
-    [
-        'id' => 'membership',
-        'title' => 'Membership',
-        'lede' => 'Exclusive packages for regular golfers who want more from DPX.',
-        'points' => ['Exclusive member offers', 'Priority booking', 'Members-only events', 'And more to come'],
-        'cta' => 'Register interest',
-    ],
-    [
-        'id' => 'coaching',
-        'title' => 'Coaching',
-        'lede' => 'Professional coaching built on TrackMan data, not guesswork.',
-        'points' => ['Lower your handicap', 'Add distance', 'Build consistency', 'Understand your swing'],
-        'cta' => 'Register interest',
-    ],
-    [
-        'id' => 'competitions',
-        'title' => 'Competitions & Leagues',
-        'lede' => 'Competitive golf indoors, for every ability.',
-        'points' => [
-            'Indoor golf leagues',
-            'Nearest the pin',
-            'Longest drive',
-            'Seasonal events',
-            'Major championship competitions',
-        ],
-        'cta' => 'Register interest',
-    ],
-];
-
-const TICKER = [
-    'Club Speed', 'Ball Speed', 'Carry Distance', 'Launch Angle',
-    'Spin Rate', 'Shot Shape', 'Club Path', 'Attack Angle',
-];
-
-/** The options in the enquiry form's "I'm interested in" select. */
-const INTERESTS = [
-    ['value' => 'bay',          'label' => 'Book a bay'],
-    ['value' => 'membership',   'label' => 'Membership'],
-    ['value' => 'coaching',     'label' => 'Coaching'],
-    ['value' => 'competitions', 'label' => 'Competitions & leagues'],
-    ['value' => 'corporate',    'label' => 'Corporate or group event'],
-    ['value' => 'other',        'label' => 'Something else'],
-];
 
 /** Look up an interest label by its value, for emails and confirmations. */
 function interest_label(string $value): string

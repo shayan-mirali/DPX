@@ -32,12 +32,21 @@ const BUILTINS = new Set([
   "filemtime", "array_key_exists", "strval", "intval", "abs", "round", "ucfirst",
   "unlink", "require", "include", "printf", "str_replace", "in_array", "array_slice",
   "htmlspecialchars_decode", "rtrim", "ltrim", "strtolower", "strtoupper", "sprintf",
+  // Admin dashboard: sessions, hashing, files, CSV.
+  "session_start", "session_status", "session_name", "session_destroy",
+  "session_regenerate_id", "session_set_cookie_params", "session_get_cookie_params",
+  "setcookie", "ini_get", "password_hash", "password_verify", "hash_equals",
+  "random_bytes", "bin2hex", "define", "dirname", "rename", "glob",
+  "fopen", "fclose", "fwrite", "fputcsv", "file", "strtotime",
+  "array_is_list", "array_reverse", "array_shift", "array_unique", "array_intersect",
+  "is_numeric", "is_string", "mb_strtolower", "mb_strtoupper", "str_pad",
 ]);
 
 // Magic and extension constants that are always available.
 const RUNTIME_CONST = [
   "PHP_VERSION_ID", "PHP_VERSION", "PHP_EOL", "CURLOPT_NOBODY", "CURLOPT_URL",
-  "ENT_HTML5", "M_PI", "PHP_INT_MAX",
+  "ENT_HTML5", "M_PI", "PHP_INT_MAX", "PASSWORD_DEFAULT", "PHP_SESSION_ACTIVE",
+  "FILE_IGNORE_NEW_LINES", "FILE_SKIP_EMPTY_LINES", "JSON_PRETTY_PRINT",
 ];
 
 function walk(dir, out = []) {

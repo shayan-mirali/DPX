@@ -130,6 +130,38 @@ if ($hasConfig) {
     );
 }
 
+/* ---- Admin dashboard ---- */
+if ($hasConfig) {
+    $cfg = require $configPath;
+    $adminHash = is_array($cfg) ? (string) ($cfg['admin_password_hash'] ?? '') : '';
+    check(
+        'Admin password set',
+        $adminHash !== '',
+        $adminHash !== ''
+            ? 'the dashboard can be logged into'
+            : 'admin/setup.php will generate a hash to paste into config.php',
+        false
+    );
+}
+
+check(
+    'admin/setup.php removed',
+    !is_file(__DIR__ . '/admin/setup.php'),
+    is_file(__DIR__ . '/admin/setup.php')
+        ? 'still present — delete it once the password is set'
+        : 'gone, as it should be',
+    false
+);
+
+check(
+    'admin/inc/.htaccess uploaded',
+    is_file(__DIR__ . '/admin/inc/.htaccess'),
+    is_file(__DIR__ . '/admin/inc/.htaccess')
+        ? 'admin includes are blocked from direct access'
+        : 'MISSING — another dotfile FTP clients like to skip',
+    false
+);
+
 /* ---- Outbound connectivity ---- */
 if (function_exists('curl_init')) {
     $ch = curl_init('https://api.resend.com');

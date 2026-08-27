@@ -63,9 +63,13 @@ launch, then set `from` to an address on it.
 
 ## Editing the site
 
-**All copy, prices, hours and contact details live in `inc/content.php`.** It
-is the direct counterpart of `src/lib/content.ts` in the Next.js build and
-needs no PHP knowledge beyond not deleting the quote marks.
+**Use the admin dashboard at `/admin`** for anything that changes regularly —
+copy, prices, hours, contact details. See the section below.
+
+To change the *shipped defaults* (what "discard all edits" restores), edit
+`inc/defaults.php`. It is the direct counterpart of `src/lib/content.ts` in the
+Next.js build and needs no PHP knowledge beyond not deleting the quote marks.
+`inc/content.php` is now the merge layer, not the copy — don't put text there.
 
 Prices store only the bay **total**; the "£33 each" line and the `priceRange`
 in the structured data are both derived, so a rate change is one number in one
@@ -73,6 +77,70 @@ place.
 
 Section markup lives in `inc/partials/`, one file per section, included by
 `index.php` in reading order.
+
+## The admin dashboard
+
+`/admin` — a small CMS so the venue can change copy and prices without
+touching files or redeploying anything.
+
+### First-time setup
+
+1. Open `admin/setup.php`, type the password you want, press **Generate hash**
+2. Paste the hash into `config.php` as `admin_password_hash`
+3. **Delete `admin/setup.php`**
+4. Sign in at `admin/login.php`
+
+Nobody can log in until step 2 is done, which is the right default for a site
+that has just been uploaded.
+
+### What it edits
+
+| Screen | Covers |
+| --- | --- |
+| Venue details | Name, tagline, phone, emails, address, opening days and hours, booking link, company details |
+| Pricing | Every price on the rate card, the VAT line and the conditions |
+| Page content | Venue feature cards, "who it's for" rows, "what's coming" cards, the eight TrackMan figures, the ticker |
+| Enquiries | Everything the form has received, searchable, with CSV export |
+
+### How saving works
+
+**The dashboard never rewrites PHP.** Edits are written to
+`storage/content.json`, which `inc/content.php` merges over the shipped
+defaults in `inc/defaults.php`.
+
+That separation is the whole design:
+
+- A bad edit can put wrong words on the page. It **cannot** cause a syntax
+  error or a white screen, because no PHP is ever generated.
+- **Delete `storage/content.json` and everything returns to the shipped copy**
+  — that is exactly what the "Discard all edits" button does.
+- Every save writes a timestamped backup to `storage/backups/` (last 20 kept),
+  so yesterday's pricing is recoverable by anyone with FTP access.
+- Writes are atomic: the file is written to a temp name and renamed into
+  place, so a visitor mid-request sees the old version or the new one, never
+  half of one.
+
+Derived values follow automatically. Change a price and the "£33 each" line,
+and the price range in the Google listing data, both update themselves.
+
+### Security
+
+Single shared password hashed with `password_hash`. Sessions are httponly and
+same-site, the session id is regenerated on login, every form carries a CSRF
+token, and failed logins are throttled to 8 per IP per 15 minutes.
+
+The login throttle fails **closed** — unlike the enquiry rate limiter, which
+fails open. A form nobody can submit loses a customer; a password nobody can
+brute-force loses nothing.
+
+`admin/inc/` has its own `.htaccess` blocking direct access to the includes.
+Another dotfile to check actually uploaded.
+
+**There is no delete button for enquiries**, deliberately — they are business
+records and a mis-click should not destroy them. Clear the file over FTP if
+you genuinely need to.
+
+---
 
 ### Rebuilding the CSS
 
