@@ -60,11 +60,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $pricing['notes'] = compact_list(post_list('notes'));
 
     if ($problems) {
-        admin_flash('Not saved — ' . implode('; ', array_unique($problems)) . '.', 'err');
+        admin_flash('Nothing was saved. ' . ucfirst(implode('; ', array_unique($problems))) . '.', 'err');
     } elseif (admin_save_section('PRICING', $pricing)) {
         admin_flash('Pricing saved.');
     } else {
-        admin_flash('Could not save. Check that storage/ is writable.', 'err');
+        admin_flash('Could not save. The storage folder on the server is not writable.', 'err');
     }
 
     header('Location: pricing.php');
@@ -72,14 +72,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 }
 
 admin_head('Pricing', 'pricing.php');
+page_header(
+    'Pricing',
+    'Type the price for the <strong>whole bay</strong>. The &ldquo;&pound;33 each&rdquo; line '
+    . 'under every price works itself out, so there is only ever one number to change.',
+    'pricing'
+);
 ?>
-
-<h1>Pricing</h1>
-<p class="lede">
-  Enter the price for the <strong>whole bay</strong>. The “each” figure under
-  every price on the site is worked out from it, so there is only ever one
-  number to change.
-</p>
 
 <form method="post" action="pricing.php">
 <?php csrf_input(); ?>
@@ -87,8 +86,8 @@ admin_head('Pricing', 'pricing.php');
 <?php foreach (PRICING['periods'] as $pi => $period): ?>
   <div class="card">
     <div class="grid two">
-      <?php field("period_label_$pi", 'Period name', $period['label']); ?>
-      <?php field("period_when_$pi", 'When it applies', $period['when'], 'Shown under the switch, e.g. “Monday – Friday · 10am – 4pm”.'); ?>
+      <?php field("period_label_$pi", 'Name on the button', $period['label']); ?>
+      <?php field("period_when_$pi", 'When it applies', $period['when'], 'The small line under the buttons, e.g. &ldquo;Monday &ndash; Friday &middot; 10am &ndash; 4pm&rdquo;.'); ?>
     </div>
 
     <div class="scroll-x" style="margin-top:18px">
@@ -107,10 +106,12 @@ admin_head('Pricing', 'pricing.php');
               <td><?= e(players_label((int) $row['players'])) ?></td>
               <?php foreach ($row['totals'] as $ti => $total): ?>
                 <td>
+                  <span class="money">
                   <input type="text" inputmode="decimal"
                          name="price_<?= (int) $pi ?>_<?= (int) $ri ?>_<?= (int) $ti ?>"
                          value="<?= e((string) $total) ?>"
                          aria-label="<?= e($period['label'] . ' ' . players_label((int) $row['players']) . ' ' . hours_word((int) PRICING['durations'][$ti])) ?>">
+                  </span>
                   <?php if ((int) $row['players'] > 1): ?>
                     <span class="hint" style="text-align:right">
                       <?= e(gbp(per_player((float) $total, (int) $row['players']))) ?> each
@@ -128,12 +129,13 @@ admin_head('Pricing', 'pricing.php');
 
 <div class="card">
   <h2>Small print</h2>
-  <?php field_area('vatNote', 'VAT line', PRICING['vatNote'], 'Shown on its own line directly under the table.', 2); ?>
+  <?php field_area('vatNote', 'VAT line', PRICING['vatNote'], 'Sits on its own line right under the table.', 2); ?>
 
   <div style="margin-top:18px">
     <span class="lab">Conditions</span>
     <span class="hint" style="margin-bottom:8px">
-      One per box, shown as bullets under the table. Clear a box to remove it.
+      One per box, shown as bullets under the table. Empty a box to remove it;
+      the last box adds a new one.
     </span>
     <?php
     $notes = PRICING['notes'];
@@ -145,10 +147,11 @@ admin_head('Pricing', 'pricing.php');
 </div>
 
 <div class="card">
-  <h2>How it will read</h2>
+  <h2>What Google will show</h2>
   <span class="hint">
-    Price range shown to Google: <strong><?= e(price_range()) ?></strong>.
-    This updates itself from the table above.
+    Your price range appears in search results as
+    <strong><?= e(price_range()) ?></strong>. It works itself out from the table
+    above &mdash; there is nothing to set.
   </span>
 </div>
 

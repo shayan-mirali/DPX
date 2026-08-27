@@ -64,13 +64,13 @@ if ($q !== '') {
 }
 
 admin_head('Enquiries', 'enquiries.php');
+page_header(
+    'Enquiries',
+    'Everyone who has filled in the form, newest first. These are saved here '
+    . 'before any email goes out, so nothing is lost even if an email fails.',
+    'book'
+);
 ?>
-
-<h1>Enquiries</h1>
-<p class="lede">
-  Everything submitted through the form, newest first. This is written before
-  any email is sent, so an enquiry appears here even if the email failed.
-</p>
 
 <div class="card">
   <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
@@ -146,12 +146,11 @@ admin_head('Enquiries', 'enquiries.php');
 <?php endif; ?>
 
 <div class="card">
-  <h2>Where this comes from</h2>
+  <h2>Why there is no delete button</h2>
   <span class="hint">
-    <code>storage/enquiries.jsonl</code>, one enquiry per line. There is no
-    delete button here on purpose — customer enquiries are business records,
-    and a mis-click should not be able to destroy them. Remove the file over
-    FTP if you genuinely need to clear it.
+    These are customer records, and one mis-click should not be able to wipe
+    them. If you genuinely need to clear the list, ask whoever looks after the
+    website — it is a single file on the server.
   </span>
 </div>
 

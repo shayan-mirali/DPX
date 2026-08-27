@@ -347,3 +347,112 @@ tbody tr:hover td { background: rgba(237, 232, 220, 0.02); }
 .login img { height: 32px; width: auto; display: block; margin: 0 auto 24px; }
 .login .btn { width: 100%; margin-top: 18px; }
 .login h1 { font-size: 20px; }
+
+/* ------------------------------------------------------------------ *
+ *  Page header, with the "see it on the site" link alongside
+ * ------------------------------------------------------------------ */
+
+.pagehead {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px; margin-bottom: 4px;
+}
+.pagehead .lede { margin-bottom: 24px; }
+.nowrap { white-space: nowrap; }
+@media (max-width: 620px) {
+  .pagehead { flex-direction: column; gap: 12px; }
+  .pagehead .lede { margin-bottom: 14px; }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Task list on the overview
+ * ------------------------------------------------------------------ */
+
+.tasks { display: grid; gap: 8px; margin-top: 16px; }
+.task {
+  display: flex; align-items: flex-start; gap: 13px;
+  padding: 14px 15px; border-radius: 10px;
+  border: 1px solid var(--line-soft); background: var(--panel-2);
+  text-decoration: none; color: var(--bone);
+  transition: border-color .15s, background .15s;
+}
+.task:hover { border-color: rgba(198, 242, 78, 0.35); background: rgba(198, 242, 78, 0.04); }
+.task .ic { margin-top: 2px; color: var(--lime); opacity: .85; }
+.task strong { display: block; font-weight: 600; font-size: 14.5px; }
+.task em {
+  display: block; font-style: normal; color: var(--dim);
+  font-size: 13px; margin-top: 3px;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Notes list
+ * ------------------------------------------------------------------ */
+
+.notes { margin: 14px 0 0; padding-left: 18px; color: var(--dim); font-size: 14px; line-height: 1.75; }
+.notes li { margin-bottom: 6px; }
+.notes li:last-child { margin-bottom: 0; }
+.notes strong { color: var(--bone); font-weight: 600; }
+
+/* ------------------------------------------------------------------ *
+ *  Remove toggle on repeating blocks
+ * ------------------------------------------------------------------ */
+
+.remove {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--dim); cursor: pointer;
+  padding: 5px 11px 5px 9px; border-radius: 999px;
+  border: 1px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.remove:hover { color: var(--red); border-color: rgba(255, 143, 143, 0.28); }
+.remove input { accent-color: #ff8f8f; }
+.remove:has(input:checked) {
+  color: var(--red); border-color: rgba(255, 143, 143, 0.45);
+  background: rgba(255, 143, 143, 0.08);
+}
+
+/* A block marked for removal should look doomed, not merely ticked. */
+.block:has(.remove input:checked) { opacity: .45; }
+.block:has(.remove input:checked) input:not([type="checkbox"]),
+.block:has(.remove input:checked) textarea,
+.block:has(.remove input:checked) select { text-decoration: line-through; }
+
+/* The empty "add one" slot at the end of each list. */
+.block-new { border-style: dashed; background: transparent; }
+.block-new .block-num { color: var(--dim); }
+
+/* ------------------------------------------------------------------ *
+ *  Money inputs
+ * ------------------------------------------------------------------ */
+
+.money { position: relative; display: block; }
+.money::before {
+  content: "£"; position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%); color: var(--dim); font-size: 13.5px;
+  pointer-events: none; font-family: ui-monospace, monospace;
+}
+.money input { padding-left: 24px; }
+
+/* ------------------------------------------------------------------ *
+ *  Unsaved-changes indicator
+ * ------------------------------------------------------------------ */
+
+.unsaved {
+  display: none; font-size: 13px; color: var(--amber);
+  align-items: center; gap: 7px;
+}
+.unsaved::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--amber); flex: 0 0 7px;
+}
+.savebar.dirty .unsaved { display: inline-flex; }
+.savebar.dirty .saved-note { display: none; }
+
+/* ------------------------------------------------------------------ *
+ *  Reset form
+ * ------------------------------------------------------------------ */
+
+.danger-card { border-color: rgba(255, 143, 143, 0.18); }
+.resetform {
+  margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.resetform input { max-width: 170px; }

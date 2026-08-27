@@ -61,7 +61,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
     $problems = [];
     if ($site['name'] === '') {
-        $problems[] = 'the venue name';
+        $problems[] = 'a venue name';
     }
     if (!$site['hours']['days']) {
         $problems[] = 'at least one opening day';
@@ -72,15 +72,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         }
     }
     if ($booking !== '' && !filter_var($booking, FILTER_VALIDATE_URL)) {
-        $problems[] = 'a valid booking URL, including https://';
+        $problems[] = 'a booking link starting with https://';
     }
 
     if ($problems) {
-        admin_flash('Not saved — needs ' . implode(', ', $problems) . '.', 'err');
+        admin_flash('Nothing was saved. Please add ' . implode(', ', $problems) . '.', 'err');
     } elseif (admin_save_section('SITE', $site)) {
         admin_flash('Venue details saved.');
     } else {
-        admin_flash('Could not save. Check that storage/ is writable.', 'err');
+        admin_flash('Could not save. The storage folder on the server is not writable.', 'err');
     }
 
     header('Location: site.php');
@@ -88,13 +88,14 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 }
 
 admin_head('Venue details', 'site.php');
+page_header(
+    'Venue details',
+    'Your address, phone number, email and opening hours. Change them once here '
+    . 'and they update everywhere &mdash; the page, the footer, the enquiry emails, '
+    . 'and what Google shows about you.',
+    'book'
+);
 ?>
-
-<h1>Venue details</h1>
-<p class="lede">
-  Contact details, opening hours and the address. These feed the page, the
-  footer, the enquiry emails and the Google listing data all at once.
-</p>
 
 <form method="post" action="site.php">
 <?php csrf_input(); ?>
@@ -106,8 +107,8 @@ admin_head('Venue details', 'site.php');
     <?php field('town', 'Town', SITE['town']); ?>
   </div>
   <div class="grid two" style="margin-top:16px">
-    <?php field('descriptor', 'Descriptor', SITE['descriptor'], 'Shown above the headline and in the page title.'); ?>
-    <?php field('tagline', 'Tagline', SITE['tagline'], 'The big scrolling line between sections.'); ?>
+    <?php field('descriptor', 'Small line above the headline', SITE['descriptor'], 'Currently reads &ldquo;Premium Indoor Golf&rdquo;. Also shown in the browser tab.'); ?>
+    <?php field('tagline', 'Tagline', SITE['tagline'], 'The big line that drifts across the middle of the page.'); ?>
   </div>
 </div>
 
@@ -116,7 +117,7 @@ admin_head('Venue details', 'site.php');
   <div class="grid two">
     <?php field('phone', 'Phone', (string) SITE['phone'], 'Displayed as typed; the tel: link strips the spaces.'); ?>
     <?php field('bookingUrl', 'Booking system URL', (string) (SITE['bookingUrl'] ?? ''),
-        'Leave empty and every <strong>Book a Bay</strong> button scrolls to the enquiry form. Add a URL and they all open it in a new tab instead.', 'url'); ?>
+        'Leave this empty and every <strong>Book a Bay</strong> button sends people to the enquiry form. Paste a booking link here and they all open that instead.', 'url'); ?>
   </div>
 
   <div style="margin-top:18px">
@@ -144,7 +145,7 @@ admin_head('Venue details', 'site.php');
     <?php field('addr_line3', 'Line 3', SITE['address']['line3']); ?>
     <?php field('addr_town', 'Town', SITE['address']['town']); ?>
     <?php field('addr_postcode', 'Postcode', SITE['address']['postcode']); ?>
-    <?php field('addr_country', 'Country code', SITE['address']['country'], 'Two letters, e.g. GB. Used by the Google listing data.'); ?>
+    <?php field('addr_country', 'Country code', SITE['address']['country'], 'Two letters &mdash; GB for the UK. Google uses this.'); ?>
   </div>
 </div>
 
@@ -189,11 +190,11 @@ admin_head('Venue details', 'site.php');
     <?php field('office_town', 'Office town', SITE['legal']['office']['town']); ?>
     <?php field('office_postcode', 'Office postcode', SITE['legal']['office']['postcode']); ?>
     <?php field('office_country', 'Country', SITE['legal']['office']['country']); ?>
-    <?php field('origin', 'Site address', SITE['origin'], 'Used for share previews and the canonical URL, e.g. https://dpxgolf.co.uk', 'url'); ?>
+    <?php field('origin', 'Website address', SITE['origin'], 'Used when someone shares a link to the site, e.g. https://dpxgolf.co.uk', 'url'); ?>
   </div>
 </div>
 
-<?php save_bar('Changes appear on the site as soon as you save.'); ?>
+<?php save_bar('Changes show on the site straight away.'); ?>
 </form>
 
 <?php admin_foot(); ?>

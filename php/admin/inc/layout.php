@@ -135,9 +135,9 @@ function admin_foot(): void
     ?>
     </div>
     <footer class="foot">
-      Changes save to <code>storage/content.json</code> and appear on the site
-      immediately. The shipped copy in <code>inc/defaults.php</code> is never
-      modified, so <em>Discard all edits</em> always works.
+      Changes appear on the site the moment you save — there's nothing to
+      publish. Every save keeps a backup, and <em>Start over</em> on the
+      Overview page puts everything back the way it came.
     </footer>
   </main>
 </div>
@@ -165,9 +165,73 @@ function admin_foot(): void
     if (e.key === 'Escape') set(false);
   });
 })();
+
+/* Warn before leaving a form with unsaved edits. Losing ten minutes of
+   retyping because you clicked the wrong nav item is the single most
+   annoying thing a dashboard can do. */
+(function () {
+  var form = document.querySelector('main form');
+  if (!form) return;
+
+  var dirty = false;
+  form.addEventListener('input', function () { dirty = true; });
+  form.addEventListener('change', function () { dirty = true; });
+  form.addEventListener('submit', function () { dirty = false; });
+
+  window.addEventListener('beforeunload', function (e) {
+    if (!dirty) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+
+  /* Also flag it in the page, since a browser's own warning is easy to
+     dismiss without reading. */
+  var bar = document.querySelector('.savebar');
+  if (bar) {
+    form.addEventListener('input', function () { bar.classList.add('dirty'); });
+    form.addEventListener('change', function () { bar.classList.add('dirty'); });
+  }
+})();
 </script>
 </body>
 </html>
+<?php
+}
+
+/**
+ * Page heading, with a link straight to that section of the live site.
+ * Saving and then hunting for the change is the most common small
+ * frustration in any CMS; this removes it.
+ */
+function page_header(string $title, string $lede, string $anchor = ''): void
+{
+    ?>
+  <div class="pagehead">
+    <div>
+      <h1><?= e($title) ?></h1>
+      <p class="lede"><?= $lede ?></p>
+    </div>
+    <?php if ($anchor !== ''): ?>
+      <a class="ghost nowrap" href="../index.php#<?= e($anchor) ?>" target="_blank" rel="noopener">
+        See it on the site ↗
+      </a>
+    <?php endif; ?>
+  </div>
+<?php
+}
+
+/**
+ * A "remove this" checkbox. Explicit, reversible until you press Save,
+ * and needs no JavaScript — replacing the old trick of clearing a title
+ * to make something disappear, which nobody would ever guess.
+ */
+function remove_toggle(string $name, string $what): void
+{
+    ?>
+  <label class="remove">
+    <input type="checkbox" name="<?= e($name) ?>" value="1">
+    <span>Remove this <?= e($what) ?></span>
+  </label>
 <?php
 }
 
@@ -203,7 +267,8 @@ function save_bar(string $note = ''): void
     ?>
   <div class="savebar">
     <button type="submit" class="btn">Save changes</button>
-    <?php if ($note !== ''): ?><span class="hint"><?= $note ?></span><?php endif; ?>
+    <span class="unsaved">You have unsaved changes</span>
+    <?php if ($note !== ''): ?><span class="hint saved-note"><?= $note ?></span><?php endif; ?>
   </div>
 <?php
 }
