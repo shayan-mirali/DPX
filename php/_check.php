@@ -49,7 +49,8 @@ check(
 foreach ([
     'index.php' => 'the page itself',
     'enquiry.php' => 'the form handler',
-    'inc/content.php' => 'all site copy',
+    'inc/content.php' => 'the content loader',
+    'inc/defaults.php' => 'all site copy — content.php is useless without it',
     'assets/css/styles.css' => 'compiled stylesheet',
     'assets/js/app.js' => 'all interactivity',
     '.htaccess' => 'security headers and config blocking',
@@ -70,6 +71,19 @@ if (!is_file(__DIR__ . '/storage/.htaccess')) {
         'Without this, stored customer names, emails and phone numbers are '
         . 'downloadable by anyone who guesses the URL. Many FTP clients hide '
         . 'dotfiles by default — turn on "show hidden files" and upload it.'
+    );
+}
+
+/* These two were one file until the dashboard was added, and they must be
+ * uploaded together. content.php on its own is a fatal error, not a
+ * degraded page — worth calling out by name rather than leaving someone
+ * to work it out from a blank screen. */
+if (is_file(__DIR__ . '/inc/content.php') && !is_file(__DIR__ . '/inc/defaults.php')) {
+    check(
+        'inc/content.php and inc/defaults.php are both uploaded',
+        false,
+        'defaults.php is missing. content.php reads its content from it and the '
+        . 'site cannot render without it. Upload the whole inc/ folder.'
     );
 }
 
