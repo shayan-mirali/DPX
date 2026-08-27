@@ -147,9 +147,11 @@ brute-force loses nothing.
 `admin/inc/` has its own `.htaccess` blocking direct access to the includes.
 Another dotfile to check actually uploaded.
 
-**There is no delete button for enquiries**, deliberately — they are business
-records and a mis-click should not destroy them. Clear the file over FTP if
-you genuinely need to.
+**Deleting an enquiry asks first**, in a dialog that names the person and the
+date so there is no doubt which row is going. Anything deleted is appended to
+`storage/backups/deleted-enquiries.jsonl` first — it leaves the list, but it is
+recoverable from the server. These are customer records; a confirmed delete
+should still not be the last word.
 
 ---
 

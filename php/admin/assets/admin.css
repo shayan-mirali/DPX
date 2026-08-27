@@ -456,3 +456,64 @@ tbody tr:hover td { background: rgba(237, 232, 220, 0.02); }
   margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
 }
 .resetform input { max-width: 170px; }
+
+/* ------------------------------------------------------------------ *
+ *  Enquiries toolbar and delete
+ * ------------------------------------------------------------------ */
+
+.toolbar {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  align-items: center; justify-content: space-between;
+}
+.searchform { display: flex; gap: 8px; flex: 1; min-width: 240px; align-items: center; }
+
+td.when { white-space: nowrap; color: var(--dim); font-size: 13px; }
+
+.del {
+  appearance: none; cursor: pointer;
+  background: transparent; color: var(--dim);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 5px 13px; font: inherit; font-size: 12.5px;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.del:hover, .del:focus-visible {
+  color: var(--red); border-color: rgba(255, 143, 143, 0.45);
+  background: rgba(255, 143, 143, 0.08);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Confirmation dialog
+ * ------------------------------------------------------------------ */
+
+.modal {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--bone);
+  border-radius: 14px;
+  padding: 26px;
+  max-width: 420px;
+  width: calc(100% - 36px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .55);
+}
+.modal::backdrop { background: rgba(0, 0, 0, .62); backdrop-filter: blur(2px); }
+
+.modal h2 { font-size: 18px; margin: 0 0 10px; }
+.modal-body { margin: 0 0 4px; color: var(--bone); font-size: 14.5px; }
+.modal-body strong { font-weight: 600; }
+.modal .hint { margin-top: 10px; }
+
+.modal-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 22px; flex-wrap: wrap;
+}
+.modal-actions .btn { padding: 9px 18px; font-size: 14px; }
+
+@media (max-width: 480px) {
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions .btn { width: 100%; }
+}

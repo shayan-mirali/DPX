@@ -41,6 +41,7 @@ const BUILTINS = new Set([
   "array_is_list", "array_reverse", "array_shift", "array_unique", "array_intersect",
   "is_numeric", "is_string", "mb_strtolower", "mb_strtoupper", "str_pad",
   "array_keys", "array_values", "array_merge", "array_combine", "array_sum",
+  "sha1", "md5", "hash", "rawurlencode", "urlencode", "base64_encode", "base64_decode",
   "usort", "uasort", "ksort", "asort", "number_format", "json_last_error",
 ]);
 

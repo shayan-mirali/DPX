@@ -151,11 +151,76 @@ function admin_enquiries(): array
     foreach ($lines as $line) {
         $row = json_decode($line, true);
         if (is_array($row)) {
+            /* Identify a row by a hash of its exact stored line. The log has
+             * no ids and predates this feature, so deriving one costs nothing
+             * and works for rows written before delete existed. */
+            $row['_id'] = sha1($line);
             $out[] = $row;
         }
     }
 
     return array_reverse($out);
+}
+
+/**
+ * Delete one enquiry, identified by the hash from admin_enquiries().
+ *
+ * The row is copied to storage/backups/deleted-enquiries.jsonl before it
+ * goes. These are customer records: a confirmed delete should still be
+ * recoverable by whoever runs the server, even though the person doing
+ * the deleting meant it.
+ *
+ * Exactly one line is removed, even in the vanishingly unlikely case of
+ * two byte-identical submissions.
+ */
+function admin_delete_enquiry(string $id): bool
+{
+    $path = admin_enquiries_path();
+    if ($id === '' || !is_file($path)) {
+        return false;
+    }
+
+    $lines = @file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        return false;
+    }
+
+    $kept = [];
+    $removed = null;
+    foreach ($lines as $line) {
+        if ($removed === null && sha1($line) === $id) {
+            $removed = $line;
+            continue;
+        }
+        $kept[] = $line;
+    }
+
+    if ($removed === null) {
+        return false; // already gone, or someone else deleted it first
+    }
+
+    $dir = admin_snapshot_dir();
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0775, true);
+    }
+    @file_put_contents(
+        $dir . '/deleted-enquiries.jsonl',
+        rtrim($removed) . PHP_EOL,
+        FILE_APPEND | LOCK_EX
+    );
+
+    // Same temp-then-rename dance as the content file, for the same reason.
+    $tmp = $path . '.tmp';
+    $body = $kept ? implode(PHP_EOL, $kept) . PHP_EOL : '';
+    if (@file_put_contents($tmp, $body, LOCK_EX) === false) {
+        return false;
+    }
+    if (!@rename($tmp, $path)) {
+        @unlink($tmp);
+        return false;
+    }
+
+    return true;
 }
 
 /* ---- Form helpers -------------------------------------------------- */
