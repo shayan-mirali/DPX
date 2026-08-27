@@ -204,6 +204,14 @@ export function Pricing() {
           </ul>
         </div>
 
+        {/* VAT, stated on its own line rather than buried in the notes —
+            consumer pricing has to be unambiguous about it. */}
+        <Reveal delay={100}>
+          <p className="mt-6 text-[0.9rem] font-medium text-bone/70">
+            {PRICING.vatNote}
+          </p>
+        </Reveal>
+
         {/* Conditions, then the ask */}
         <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <Reveal delay={120}>

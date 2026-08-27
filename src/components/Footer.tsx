@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { NAV, SITE, telHref, hoursLabel } from "@/lib/content";
+import { NAV, SITE, telHref, hoursLabel, registeredOfficeOneLine } from "@/lib/content";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -89,9 +89,22 @@ export function Footer() {
           </p>
         </div>
 
+        {/* Companies House notice. Deliberately says "Registered office" in
+            full — it is a different address from the venue, and a customer
+            skim-reading a footer should not end up driving to it. */}
+        <div className="border-t border-bone/10 pt-7">
+          <p className="max-w-[62rem] text-[0.78rem] leading-relaxed text-bone/35">
+            {SITE.legal.company} is registered in England &amp; Wales, company
+            number{" "}
+            <span className="data text-bone/45">{SITE.legal.companyNumber}</span>.
+            Registered office: {registeredOfficeOneLine}. This is not the venue
+            address.
+          </p>
+        </div>
+
         <div className="flex flex-col gap-3 border-t border-bone/10 py-7 sm:flex-row sm:items-center sm:justify-between">
           <p className="data text-[10px] uppercase tracking-[0.18em] text-bone/35">
-            © {year} {SITE.name}
+            © {year} {SITE.legal.company}
           </p>
           <p className="data text-[10px] uppercase tracking-[0.18em] text-bone/35">
             TrackMan is a trademark of its respective owner

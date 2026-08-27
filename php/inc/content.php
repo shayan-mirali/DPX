@@ -47,6 +47,24 @@ const SITE = [
         ],
     ],
 
+    /* Companies House details, required on the site by the Companies Act.
+     *
+     * NOTE: the registered office is NOT the venue. Customers visit
+     * Oakwood House, Bretby Business Park; this address is a legal
+     * formality and is labelled as such in the footer so nobody drives
+     * to the wrong door. */
+    'legal' => [
+        'company' => 'DPX Golf Ltd',
+        'companyNumber' => '17054770',
+        'office' => [
+            'line1' => 'Chartwell House',
+            'line2' => "4 St Paul's Square",
+            'town' => 'Burton upon Trent',
+            'country' => 'England',
+            'postcode' => 'DE14 2EF',
+        ],
+    ],
+
     /* The venue is going with TrackMan's own booking system; the link
      * lands once the contract is signed. Put the URL here and every
      * "Book a Bay" control on the site switches from scrolling to the
@@ -137,6 +155,18 @@ function tel_href(): ?string
     return 'tel:' . preg_replace('/\s+/', '', SITE['phone']);
 }
 
+/** The registered office on one line, for the footer's legal notice. */
+function registered_office_one_line(): string
+{
+    return implode(', ', [
+        SITE['legal']['office']['line1'],
+        SITE['legal']['office']['line2'],
+        SITE['legal']['office']['town'],
+        SITE['legal']['office']['country'],
+        SITE['legal']['office']['postcode'],
+    ]);
+}
+
 /** Formatted one-line address, for inline use and map links. */
 function address_one_line(): string
 {
@@ -195,6 +225,11 @@ const PRICING = [
             ],
         ],
     ],
+
+    /* Shown immediately under the table, ahead of the notes. Consumer
+     * pricing has to state this, so it gets its own line rather than
+     * being buried in a bullet list. */
+    'vatNote' => 'All prices include VAT.',
 
     /* Shown under the table. Anything that is a condition of the price
      * rather than the price itself belongs here.

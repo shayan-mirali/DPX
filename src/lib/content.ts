@@ -40,6 +40,24 @@ export const SITE = {
     ],
   },
 
+  /* Companies House details, required on the site by the Companies Act.
+   *
+   * NOTE: the registered office is NOT the venue. Customers visit
+   * Oakwood House, Bretby Business Park; this address is a legal
+   * formality and is labelled as such in the footer so nobody drives to
+   * the wrong door. */
+  legal: {
+    company: "DPX Golf Ltd",
+    companyNumber: "17054770",
+    office: {
+      line1: "Chartwell House",
+      line2: "4 St Paul's Square",
+      town: "Burton upon Trent",
+      country: "England",
+      postcode: "DE14 2EF",
+    },
+  },
+
   /* The venue is going with TrackMan's own booking system; the link
    * lands once the contract is signed. Drop the URL in here and every
    * "Book a Bay" control on the site switches from scrolling to the
@@ -90,6 +108,15 @@ export const hoursLabel = `${daysLabel} · ${SITE.hours.opens} – ${SITE.hours.
 
 /** `tel:` needs the number stripped of spaces; the display form keeps them. */
 export const telHref = SITE.phone ? `tel:${SITE.phone.replace(/\s+/g, "")}` : null;
+
+/** The registered office on one line, for the footer's legal notice. */
+export const registeredOfficeOneLine = [
+  SITE.legal.office.line1,
+  SITE.legal.office.line2,
+  SITE.legal.office.town,
+  SITE.legal.office.country,
+  SITE.legal.office.postcode,
+].join(", ");
 
 /** Formatted one-line address, for inline use. */
 export const addressOneLine = [
@@ -147,6 +174,11 @@ export const PRICING = {
       ],
     },
   ],
+
+  /* Shown immediately under the table, ahead of the notes. Consumer
+   * pricing has to state this, so it gets its own line rather than
+   * being buried in a bullet list. */
+  vatNote: "All prices include VAT.",
 
   /* Shown under the table. Anything that is a condition of the price
    * rather than the price itself belongs here. */

@@ -54,9 +54,20 @@
       </p>
     </div>
 
+    <!-- Companies House notice. Deliberately says "Registered office" in full
+         — it is a different address from the venue, and a customer
+         skim-reading a footer should not end up driving to it. -->
+    <div class="border-t border-bone/10 pt-7">
+      <p class="max-w-[62rem] text-[0.78rem] leading-relaxed text-bone/35">
+        <?= e(SITE['legal']['company']) ?> is registered in England &amp; Wales, company
+        number <span class="data text-bone/45"><?= e(SITE['legal']['companyNumber']) ?></span>.
+        Registered office: <?= e(registered_office_one_line()) ?>. This is not the venue address.
+      </p>
+    </div>
+
     <div class="flex flex-col gap-3 border-t border-bone/10 py-7 sm:flex-row sm:items-center sm:justify-between">
       <p class="data text-[10px] uppercase tracking-[0.18em] text-bone/35">
-        © <?= e(date('Y')) ?> <?= e(SITE['name']) ?>
+        © <?= e(date('Y')) ?> <?= e(SITE['legal']['company']) ?>
       </p>
       <p class="data text-[10px] uppercase tracking-[0.18em] text-bone/35">
         TrackMan is a trademark of its respective owner

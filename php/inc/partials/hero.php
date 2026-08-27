@@ -33,6 +33,16 @@ $readout = [
   <canvas id="shot-tracer" aria-hidden="true"
           class="absolute inset-0 -z-[5] h-full w-full opacity-45 [mix-blend-mode:screen] sm:opacity-100"></canvas>
 
+  <!-- The mark, sitting in the open right-hand side of the frame. Placed at
+       -z-[4] so it reads over the photograph and the tracers but never over
+       the headline or the buttons, and kept off the left where all the copy
+       lives. Decorative — the nav already carries the real logo, so this one
+       is hidden from screen readers rather than announced twice. -->
+  <div aria-hidden="true"
+       class="pointer-events-none absolute right-4 top-[58%] -z-[4] w-[44%] max-w-[260px] -translate-y-1/2 opacity-45 sm:right-10 sm:top-1/2 sm:w-[30%] sm:max-w-[420px] sm:opacity-40 lg:right-16">
+    <img src="assets/img/dpx-bone.png" alt="" width="695" height="443" decoding="async" class="h-auto w-full">
+  </div>
+
   <div class="relative mx-auto flex min-h-[100svh] max-w-[1440px] flex-col justify-end px-5 pb-10 pt-[var(--nav-h)] sm:px-8 sm:pb-14">
     <div class="max-w-[62rem]">
       <p class="eyebrow mb-7 flex flex-wrap items-center gap-x-3 gap-y-1 text-lime"

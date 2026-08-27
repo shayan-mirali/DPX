@@ -123,6 +123,12 @@
       </div>
     <?php endforeach; ?>
 
+    <!-- VAT, stated on its own line rather than buried in the notes —
+         consumer pricing has to be unambiguous about it. -->
+    <?= reveal_open('', 100) ?>
+      <p class="mt-6 text-[0.9rem] font-medium text-bone/70"><?= e(PRICING['vatNote']) ?></p>
+    <?= reveal_close() ?>
+
     <!-- Conditions, then the ask -->
     <div class="mt-8 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
       <?= reveal_open('', 120) ?>
