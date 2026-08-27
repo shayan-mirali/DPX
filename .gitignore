@@ -12,3 +12,7 @@ php/config.php
 # Stored enquiries: real customer names, emails and phone numbers
 php/storage/*.jsonl
 php/storage/rate.json
+
+# Deployment archives — a zip of php/ goes stale the moment php/ changes.
+# Build it fresh when you need one; don't track it.
+*.zip
